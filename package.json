@@ -1,0 +1,26 @@
+{
+  "name": "fullstack-template",
+  "version": "1.0.0",
+  "description": "A modern, production-ready fullstack application template featuring a React frontend and Express backend, both built with TypeScript.",
+  "scripts": {
+    "start": "concurrently \"npm run start --prefix server\" \"npm run dev --prefix client\"",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rics-dev/fullstack-template.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rics-dev/fullstack-template/issues"
+  },
+  "homepage": "https://github.com/rics-dev/fullstack-template#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  }
+}
