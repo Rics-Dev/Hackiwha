@@ -1,4 +1,4 @@
-// src/components/layout/navbar.tsx (updated)
+// src/components/layout/navbar.tsx
 import { cn } from '@/lib/utils'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -9,8 +9,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
     { label: 'Home', href: '/' },
-    { label: 'Projects', href: '/projects' },
-    { label: 'Dashboard', href: '/dashboard' },
 ]
 
 export function Navbar() {

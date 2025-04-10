@@ -133,3 +133,6 @@
 2025-04-10 20:21:21:2121 [35mhttp[39m: [35mGET /api/v1/users 304 - - 0.335 ms[39m
 2025-04-10 20:28:02:282 [35mhttp[39m: [35mGET /api/v1/users 304 - - 0.604 ms[39m
 2025-04-10 20:28:02:282 [35mhttp[39m: [35mGET /api/v1/users 304 - - 0.307 ms[39m
+2025-04-10 23:29:38:2938 [32minfo[39m: [32mServer running on port 3000 in development mode[39m
+2025-04-10 23:29:43:2943 [35mhttp[39m: [35mGET / 404 77 - 1.945 ms[39m
+2025-04-10 23:32:25:3225 [32minfo[39m: [32mServer running on port 3000 in development mode[39m
