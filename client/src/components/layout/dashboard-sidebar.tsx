@@ -8,6 +8,7 @@ import {
   Home,
   Settings,
   LogOut,
+  BookOpenText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
@@ -27,6 +28,11 @@ const commonSidebarItems: SidebarItem[] = [
     icon: <Briefcase size={20} />,
   },
   {
+    label: "Resources Library",
+    href: "/dashboard/resources",
+    icon: <BookOpenText size={20} />,
+  },
+  {
     label: "Classrooms",
     href: "/dashboard/classrooms",
     icon: <BookOpen size={20} />,
@@ -37,9 +43,9 @@ const commonSidebarItems: SidebarItem[] = [
     icon: <Users size={20} />,
   },
   {
-  label: "AI Tools",
-  href: "/dashboard/ai-tools",
-  icon: <Brain size={20} />,
+    label: "AI Tools",
+    href: "/dashboard/ai-tools",
+    icon: <Brain size={20} />,
   },
 ];
 
