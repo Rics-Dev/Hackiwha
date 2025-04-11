@@ -5,10 +5,10 @@ const {createClassroom} = require('../controllers/classroomController')
 const router = express.Router()
 
 router.post(
-    '/'
+    '/',
     protect,
-    restrictTo('teacher')
-    createClassroom
+    restrictTo('teacher'),
+    createClassroom,
 )
 
 module.exports = router

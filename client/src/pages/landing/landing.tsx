@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
+import logo from "@/assets/logo.svg"
 
 export function LandingPage() {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -27,7 +28,10 @@ export function LandingPage() {
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">Aspo</span>
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="Aspo Logo" className="w-6 h-6 mr-2" />
+              <span className="font-bold text-2xl">Aspo</span>
+            </Link>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link

@@ -21,7 +21,7 @@ type SidebarItem = {
 };
 
 const commonSidebarItems: SidebarItem[] = [
-  { label: "Hub", href: "/dashboard", icon: <Home size={20} /> },
+  { label: "Dashboard", href: "/dashboard", icon: <Home size={20} /> },
   {
     label: "Workspace",
     href: "/dashboard/workspace",

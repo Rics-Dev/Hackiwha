@@ -36,7 +36,7 @@ interface AppItem {
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const { theme } = useTheme(); // Access the current theme
+  const { theme } = useTheme(); 
   const userRole = user?.role || "Student";
 
   const apps: AppItem[] = [
@@ -45,8 +45,12 @@ export function DashboardPage() {
     { name: "Calendar", icon: calendar, url: "https://calendar.google.com" },
     { name: "Gmail", icon: gmail, url: "https://mail.google.com" },
     { name: "Google", icon: google, url: "https://www.google.com" },
-    { name: "Youtube", icon: youtube, url: "https://www.youtube.com" },
-    { name: "Docs", icon: docs, url: "https://docs.google.com" },
+    { name: "Youtube", icon: youtube, url: "https://www.youtube.com/embed" },
+    {
+      name: "Docs",
+      icon: docs,
+      url: "https://docs.google.com/document/d/e/pub?embedded=true",
+    },
     { name: "Sheet", icon: sheet, url: "https://sheets.google.com" },
     { name: "Forms", icon: forms, url: "https://forms.google.com" },
   ];
