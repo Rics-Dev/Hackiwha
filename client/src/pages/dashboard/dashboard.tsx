@@ -1,19 +1,4 @@
-import {
-  Briefcase,
-  CalendarClock,
-  BookOpen,
-  TrendingUp,
-  ExternalLink,
-  Users,
-  MessageSquare,
-  GraduationCap,
-  Calendar,
-  Clock,
-  Book,
-  Library,
-  BookOpenText,
-  FileBadge,
-} from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import drive from "@/assets/google_drive.svg";
@@ -25,9 +10,24 @@ import youtube from "@/assets/youtube.svg";
 import docs from "@/assets/docs.svg";
 import sheet from "@/assets/sheets.svg";
 import forms from "@/assets/forms.svg";
+import "@tldraw/tldraw/tldraw.css";
+import { Tldraw } from "@tldraw/tldraw";
+import {
+  Briefcase,
+  CalendarClock,
+  BookOpen,
+  TrendingUp,
+  ExternalLink,
+  Users,
+  MessageSquare,
+  GraduationCap,
+  Calendar,
+  Clock,
+  BookOpenText,
+  FileBadge,
+} from "lucide-react";
+import { useTheme } from "@/components/theme-provider"; // Import useTheme
 
-
-// Define interface for app items
 interface AppItem {
   name: string;
   icon: string;
@@ -36,8 +36,9 @@ interface AppItem {
 
 export function DashboardPage() {
   const { user } = useAuth();
+  const { theme } = useTheme(); // Access the current theme
   const userRole = user?.role || "Student";
-  
+
   const apps: AppItem[] = [
     { name: "Drive", icon: drive, url: "https://drive.google.com" },
     { name: "ChatGPT", icon: chatgpt, url: "https://chat.openai.com" },
@@ -50,16 +51,36 @@ export function DashboardPage() {
     { name: "Forms", icon: forms, url: "https://forms.google.com" },
   ];
 
-  const handleAddApp = () => {
-    console.log("Add new app");
+  const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleAppClick = (app: AppItem) => {
+    setSelectedApp(app);
+    setIsExpanded(false);
+  };
+
+  const handleCloseApp = () => {
+    setSelectedApp(null);
+    setIsExpanded(false);
+  };
+
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleOpenInNewTab = () => {
+    if (selectedApp) {
+      window.open(selectedApp.url, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
     <div className="space-y-8">
+      {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2"
+          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
         >
           <div className="gap-2 flex flex-col items-start">
             <span className="font-bold">Upcoming Deadlines</span>
@@ -72,13 +93,13 @@ export function DashboardPage() {
         </Button>
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2"
+          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
         >
           <div className="gap-2 flex flex-col items-start">
             <span className="font-bold">Study Time</span>
             <span className="font-bold text-xl">7.5h</span>
             <span className="text-muted-foreground">
-              <span className="mr-1 bg-green-100 text-green-800 px-1 py-1 rounded">
+              <span className="mr-1 bg-green-100 text-green-800 px-1 py-1 rounded dark:bg-green-900 dark:text-green-200">
                 <span>+2.3h</span>
               </span>
               From last week
@@ -88,7 +109,7 @@ export function DashboardPage() {
         </Button>
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2"
+          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
         >
           <div className="gap-2 flex flex-col items-start">
             <span className="font-bold">Resources</span>
@@ -99,7 +120,7 @@ export function DashboardPage() {
         </Button>
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2"
+          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
         >
           <div className="gap-2 flex flex-col items-start">
             <span className="font-bold">Knowledge Points</span>
@@ -110,12 +131,10 @@ export function DashboardPage() {
         </Button>
       </div>
 
-      <div className="space-y-4 bg-white p-6 rounded-md border-1">
+      {/* Apps Section */}
+      <div className="space-y-4 bg-background p-6 rounded-md border border-border">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">My Apps</h1>
-          {/* <Button variant="outline" size="sm" onClick={handleAddApp}>
-            Add App
-          </Button> */}
+          <h1 className="text-3xl font-bold text-foreground">My Apps</h1>
         </div>
 
         <div className="relative">
@@ -125,14 +144,75 @@ export function DashboardPage() {
                 variant="outline"
                 size="sm"
                 key={app.name}
-                className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[120px] flex-shrink-0"
-                onClick={() => window.open(app.url, "_blank")}
+                className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[120px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
+                onClick={() => handleAppClick(app)}
               >
                 <img src={app.icon} alt={app.name} className="w-10 h-10 mb-2" />
                 <span className="font-medium">{app.name}</span>
               </Button>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 bg-background p-4 rounded-md border border-border">
+        <div className="w-full flex gap-4">
+          <div
+            className={`h-[500px] border rounded-md overflow-hidden transition-all duration-300 ease-in-out bg-background border-border ${
+              selectedApp ? (isExpanded ? "hidden w-0" : "w-1/2") : "w-full"
+            }`}
+          >
+            <Tldraw
+              persistenceKey={`canvas-${user?.id || "default"}`}
+              className={theme === "dark" ? "tldraw-dark" : "tldraw-light"}
+            />
+          </div>
+
+          {selectedApp && (
+            <div
+              className={`h-[500px] border rounded-md overflow-hidden flex flex-col transition-all duration-300 ease-in-out bg-background border-border ${
+                isExpanded ? "w-full" : "w-1/2"
+              }`}
+            >
+              <div className="flex justify-between items-center p-2 border-b border-border bg-background">
+                <span className="font-medium text-foreground">
+                  {selectedApp.name}
+                </span>
+                <div className="space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleToggleExpand}
+                    className="p-1 text-foreground hover:bg-accent"
+                  >
+                    {isExpanded ? "Shrink" : "Expand"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleOpenInNewTab}
+                    className="p-1 text-foreground hover:bg-accent"
+                  >
+                    Open in New Tab
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCloseApp}
+                    className="p-1 text-foreground hover:bg-accent"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+              <iframe
+                src={selectedApp.url}
+                className="w-full h-full border-none bg-background"
+                title={selectedApp.name}
+                allow="fullscreen"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

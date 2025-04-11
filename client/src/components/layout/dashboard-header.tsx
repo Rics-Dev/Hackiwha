@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Language } from "@/types/app";
 import { ModeToggle } from "../mode-toggle";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function DashboardHeader() {
   const [language, setLanguage] = useState<Language>("French");
@@ -98,11 +99,12 @@ export function DashboardHeader() {
               size="sm"
               className="flex items-center gap-2"
             >
-              <img
-                src={user?.avatar || "https://via.placeholder.com/24"} 
-                alt="Profile"
-                className="h-6 w-6 rounded-full"
-              />
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>
+                  {user?.name?.charAt(0).toUpperCase() || "P"}
+                </AvatarFallback>
+              </Avatar>
               <span className="hidden sm:inline">
                 {user?.name || "Profile"}
               </span>
