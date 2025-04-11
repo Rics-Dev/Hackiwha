@@ -1,4 +1,4 @@
-const student = require('../models/Students')
+const student = require('../models/User')
 const teacher = require('../models/teachers')
 
 const registerStudents = async (email, password, role) => {
