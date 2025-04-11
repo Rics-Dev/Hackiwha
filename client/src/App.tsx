@@ -1,5 +1,3 @@
-// src/App.tsx
-import { ThemeProvider } from "@/components/theme-provider.tsx"
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider, Navigate } from "react-router-dom"
 import { Layout } from "@/layout.tsx"
 import { DashboardLayout } from "@/components/layout/dashboard-layout.tsx"
@@ -64,8 +62,6 @@ const router = createBrowserRouter(
 
 export default function App() {
     return (
-        // <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <RouterProvider router={router} />
-        // </ThemeProvider>
     )
 }

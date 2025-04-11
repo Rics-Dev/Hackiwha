@@ -13,11 +13,17 @@ import {
   Menu,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useRef } from "react";
 
 export function LandingPage() {
+  const featuresRef = useRef<HTMLDivElement>(null);
+
+  const scrollToFeatures = () => {
+    featuresRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navigation */}
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -46,7 +52,6 @@ export function LandingPage() {
       </header>
 
       <main>
-        {/* Hero Section */}
         <section className="py-24 bg-gradient-to-b from-white to-blue-50">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-10 lg:grid-cols-2 lg:gap-12 items-center">
@@ -67,14 +72,13 @@ export function LandingPage() {
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link to="/#features">
-                    <Button
-                      variant="outline"
-                      className="border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50 py-6 px-8 text-base"
-                    >
-                      Learn More
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="outline"
+                    className="border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50 py-6 px-8 text-base"
+                    onClick={scrollToFeatures}
+                  >
+                    Learn More
+                  </Button>
                 </div>
               </div>
               <div className="mx-auto lg:mx-0 relative">
@@ -96,8 +100,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section id="features" className="py-24 bg-white">
+        <section id="features" className="py-24 bg-white" ref={featuresRef}>
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-6 text-center mb-12">
               <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-[#60A5FA] text-white mb-2">
@@ -167,10 +170,9 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* AI Tools Highlight - Redesigned without the image */}
         <section className="py-24 bg-gradient-to-r from-blue-50 to-blue-100">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-blue-100">
+            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-blue-100">
               <div className="flex flex-col justify-center space-y-6 text-center mb-8">
                 <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors border-transparent bg-[#60A5FA] text-white mx-auto">
                   AI-Powered
@@ -265,7 +267,7 @@ export function LandingPage() {
                     number: 3,
                     title: "Learn & Earn",
                     description:
-                      "Access resources, complete assignments, and earn Knowledge Points to unlock rewards.",
+                      "Access resources, complete assignments, and earn knowledge",
                   },
                 ].map((step, index) => (
                   <div
@@ -316,7 +318,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-16 bg-[#1E3A8A] text-white">
           <div className="container mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl font-bold mb-6">
@@ -336,7 +337,6 @@ export function LandingPage() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="border-t bg-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
