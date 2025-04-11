@@ -1,7 +1,13 @@
-// Types for the educational platform
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+  }
+}
 
-// User Management & Profiles
-export type UserRole = 'Student' | 'Teacher' | 'Parent' | 'Expert';
+export type UserRole = 'Student' | 'Expert';
 export type Language = 'French' | 'Arabic' | 'Tamazight';
 export type Skill = {
   name: string;

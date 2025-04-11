@@ -7,12 +7,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/auth-context";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useState } from "react";
 import { Language } from "@/types/app";
 import { Link } from "react-router-dom";
 
 export function DashboardHeader() {
   const [language, setLanguage] = useState<Language>("French");
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/auth/login");
+  };
 
   return (
     <header className="h-16 border-b bg-background sticky top-0 z-10 flex items-center px-6">
@@ -61,7 +72,7 @@ export function DashboardHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                U
+                {user?.name?.[0] || "U"}
               </div>
             </Button>
           </DropdownMenuTrigger>
@@ -70,7 +81,7 @@ export function DashboardHeader() {
             <DropdownMenuItem>
               <Link to="/dashboard/settings">Settings</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

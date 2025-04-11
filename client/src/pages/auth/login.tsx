@@ -1,9 +1,46 @@
 // src/pages/auth/login.tsx
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
+import { authApi } from "@/api/auth";
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await authApi.login(formData);
+      authApi.setAuthToken(response.token);
+      login(response.user, response.token);
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Invalid email or password");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
@@ -15,7 +52,7 @@ export function LoginPage() {
             <p className="text-gray-600 mt-2">Sign in to your account</p>
           </div>
 
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
                 <label
@@ -26,7 +63,11 @@ export function LoginPage() {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
                   placeholder="your.email@example.com"
                 />
@@ -40,7 +81,11 @@ export function LoginPage() {
                 </label>
                 <input
                   id="password"
+                  name="password"
                   type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                   className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
                   placeholder="••••••••"
                 />
@@ -70,9 +115,13 @@ export function LoginPage() {
               </div>
             </div>
 
-            <Button className="w-full bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md py-6 text-base">
-              Sign in
-              <ChevronRight className="ml-2 h-4 w-4" />
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md py-6 text-base"
+            >
+              {isLoading ? "Signing in..." : "Sign in"}
+              {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
             </Button>
 
             <div className="relative flex py-5 items-center">
@@ -119,7 +168,7 @@ export function LoginPage() {
                 </Link>
               </p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
