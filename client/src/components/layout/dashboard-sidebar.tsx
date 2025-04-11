@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
+import logo from "@/assets/logo.svg"
 
 type SidebarItem = {
   label: string;
@@ -73,7 +74,8 @@ export function DashboardSidebar() {
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
       <div className="mb-6 px-3">
         <Link to="/dashboard" className="flex items-center">
-          <span className="font-bold text-xl">Aspo</span>
+          <img src={logo} alt="Aspo Logo" className="w-8 h-8 mr-2" />
+          <span className="font-bold text-4xl">Aspo</span>
         </Link>
       </div>
 
@@ -86,10 +88,14 @@ export function DashboardSidebar() {
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative", 
                 isActive
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                "after:content-[''] after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:h-8 after:rounded-md after:w-[3px] after:bg-primary after:transition-opacity",
+                isActive
+                  ? "after:opacity-100"
+                  : "after:opacity-0 hover:after:opacity-100"
               )}
             >
               {item.icon}
