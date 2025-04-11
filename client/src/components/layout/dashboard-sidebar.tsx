@@ -66,7 +66,7 @@ const sidebarItems: SidebarItem[] = [
 export function DashboardSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -84,8 +84,7 @@ export function DashboardSidebar() {
 
       <nav className="space-y-1 flex-1">
         {sidebarItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = pathname === item.href;
 
           return (
             <Link
@@ -125,11 +124,15 @@ export function DashboardSidebar() {
       <div className="mt-6 px-3">
         <div className="flex items-center gap-3 rounded-md bg-accent/50 p-3">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
-            U
+                {user?.name?.[0] || "U"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">User Name</p>
-            <p className="text-xs text-muted-foreground truncate">Student</p>
+            <p className="text-sm font-medium truncate">
+                {user?.name || "User"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+                {user?.role || "Student"}
+            </p>
           </div>
         </div>
       </div>
