@@ -27,17 +27,17 @@ export function LandingPage() {
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-[#1E3A8A]">Aspo</span>
+            <span className="text-2xl font-bold text-primary">Aspo</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/auth/login"
-              className="text-sm font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               Login
             </Link>
             <Link to="/auth/register">
-              <Button className="bg-[#1E3A8A] hover:bg-[#152a66] transition-colors shadow-md">
+              <Button className="bg-primary hover:bg-primary/80 transition-colors shadow-md">
                 Sign Up
               </Button>
             </Link>
@@ -57,24 +57,24 @@ export function LandingPage() {
             <div className="grid gap-10 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                     Elevate Your Education with Aspo
                   </h1>
-                  <p className="max-w-[600px] text-gray-600 md:text-xl leading-relaxed">
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl leading-relaxed">
                     The complete learning platform designed for Algerian
                     students. Connect, collaborate, and excel in your studies.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 min-[400px]:flex-row">
                   <Link to="/auth/register">
-                    <Button className="bg-[#1E3A8A] hover:bg-[#152a66] transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8">
+                    <Button className="bg-primary hover:bg-primary/80 transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8">
                       Get Started
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
                     variant="outline"
-                    className="border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50 py-6 px-8 text-base"
+                    className="border-primary text-primary hover:bg-secondary py-6 px-8 text-base"
                     onClick={scrollToFeatures}
                   >
                     Learn More
@@ -89,7 +89,7 @@ export function LandingPage() {
                 />
                 <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-lg border border-gray-200 transform hover:scale-105 transition-transform">
                   <div className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-[#10B981]" />
+                    <Award className="h-5 w-5 text-emerald-500" />
                     <span className="text-sm font-medium">
                       Earn Knowledge Points
                     </span>
@@ -103,13 +103,13 @@ export function LandingPage() {
         <section id="features" className="py-24 bg-white" ref={featuresRef}>
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-6 text-center mb-12">
-              <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-[#60A5FA] text-white mb-2">
+              <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/70 text-primary-foreground mb-2">
                 Features
               </div>
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 Everything You Need to Succeed
               </h2>
-              <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-xl/relaxed">
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-xl/relaxed">
                 Aspo combines powerful learning tools with a supportive
                 community to help you excel in your studies.
               </p>
@@ -117,37 +117,37 @@ export function LandingPage() {
             <div className="mx-auto grid max-w-6xl items-center gap-8 py-6 lg:grid-cols-3">
               {[
                 {
-                  icon: <Video className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <Video className="h-8 w-8 text-primary" />,
                   title: "Virtual Classrooms",
                   description:
                     "Join live classes, participate in quizzes, and access assignments all in one place.",
                 },
                 {
-                  icon: <Users className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <Users className="h-8 w-8 text-primary" />,
                   title: "Study Groups",
                   description:
                     "Connect with peers, collaborate on projects, and learn together through video conferencing.",
                 },
                 {
-                  icon: <FileText className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <FileText className="h-8 w-8 text-primary" />,
                   title: "Resource Library",
                   description:
                     "Access Algerian textbooks, past exams, and curated educational content.",
                 },
                 {
-                  icon: <Brain className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <Brain className="h-8 w-8 text-primary" />,
                   title: "AI-Powered Tools",
                   description:
                     "Generate practice questions and get smart summaries of educational videos.",
                 },
                 {
-                  icon: <BarChart className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <BarChart className="h-8 w-8 text-primary" />,
                   title: "Progress Tracking",
                   description:
                     "Monitor your learning journey with visual analytics and achievement certificates.",
                 },
                 {
-                  icon: <Download className="h-8 w-8 text-[#1E3A8A]" />,
+                  icon: <Download className="h-8 w-8 text-primary" />,
                   title: "Offline Mode",
                   description:
                     "Download resources for studying without an internet connection.",
@@ -155,32 +155,34 @@ export function LandingPage() {
               ].map((feature, index) => (
                 <div
                   key={index}
-                  className="grid gap-4 text-center bg-blue-50 p-6 rounded-xl border border-blue-100 hover:shadow-lg transition-shadow"
+                  className="grid gap-4 text-center bg-secondary p-6 rounded-xl border border-border hover:shadow-lg transition-shadow"
                 >
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-background shadow-md">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-[#1E3A8A]">
+                  <h3 className="text-xl font-bold text-primary">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-24 bg-gradient-to-r from-blue-50 to-blue-100">
+        <section className="py-24 bg-gradient-to-r from-secondary to-secondary/50">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-blue-100">
+            <div className="max-w-6xl mx-auto bg-background rounded-2xl shadow-xl p-8 md:p-12 border border-border">
               <div className="flex flex-col justify-center space-y-6 text-center mb-8">
-                <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors border-transparent bg-[#60A5FA] text-white mx-auto">
+                <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors border-transparent bg-primary/70 text-primary-foreground mx-auto">
                   AI-Powered
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   Smart Learning Tools
                 </h2>
-                <p className="text-gray-600 md:text-xl">
+                <p className="text-muted-foreground md:text-xl">
                   Our AI tools are designed to enhance your learning experience
                   and help you prepare for exams.
                 </p>
@@ -206,20 +208,22 @@ export function LandingPage() {
                 ].map((tool, index) => (
                   <div
                     key={index}
-                    className="bg-blue-50 p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow"
+                    className="bg-secondary p-6 rounded-xl border border-border hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-3 mb-2">
-                      <Sparkles className="h-5 w-5 text-[#60A5FA] mt-0.5 flex-shrink-0" />
-                      <h3 className="font-bold text-[#1E3A8A]">{tool.title}</h3>
+                      <Sparkles className="h-5 w-5 text-primary/70 mt-0.5 flex-shrink-0" />
+                      <h3 className="font-bold text-primary">{tool.title}</h3>
                     </div>
-                    <p className="text-gray-600 pl-8">{tool.description}</p>
+                    <p className="text-muted-foreground pl-8">
+                      {tool.description}
+                    </p>
                   </div>
                 ))}
               </div>
 
               <div className="text-center">
                 <Link to="/auth/register">
-                  <Button className="bg-[#1E3A8A] hover:bg-[#152a66] transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8">
+                  <Button className="bg-primary hover:bg-primary/80 transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8">
                     Try AI Tools
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -233,13 +237,13 @@ export function LandingPage() {
         <section id="how-it-works" className="py-24 bg-white">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-6 text-center mb-12">
-              <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors border-transparent bg-[#60A5FA] text-white">
+              <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors border-transparent bg-primary/70 text-primary-foreground">
                 How It Works
               </div>
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 Your Path to Academic Success
               </h2>
-              <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-xl/relaxed">
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-xl/relaxed">
                 Getting started with Aspo is easy. Follow these simple steps to
                 begin your learning journey.
               </p>
@@ -247,7 +251,7 @@ export function LandingPage() {
             <div className="mx-auto max-w-5xl py-8">
               <div className="relative">
                 {/* Connection line */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-blue-200 transform -translate-x-1/2 hidden md:block"></div>
+                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border transform -translate-x-1/2 hidden md:block"></div>
 
                 {/* Steps */}
                 {[
@@ -277,37 +281,45 @@ export function LandingPage() {
                     <div className="md:w-1/2 md:pr-12 md:text-right mb-6 md:mb-0">
                       {index % 2 === 0 ? (
                         <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-[#1E3A8A]">
+                          <h3 className="text-2xl font-bold text-primary">
                             {step.title}
                           </h3>
-                          <p className="text-gray-600">{step.description}</p>
+                          <p className="text-muted-foreground">
+                            {step.description}
+                          </p>
                         </div>
                       ) : (
                         <div className="md:hidden space-y-2">
-                          <h3 className="text-2xl font-bold text-[#1E3A8A]">
+                          <h3 className="text-2xl font-bold text-primary">
                             {step.title}
                           </h3>
-                          <p className="text-gray-600">{step.description}</p>
+                          <p className="text-muted-foreground">
+                            {step.description}
+                          </p>
                         </div>
                       )}
                     </div>
-                    <div className="z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#1E3A8A] text-white text-xl font-bold shadow-lg relative">
+                    <div className="z-10 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold shadow-lg relative">
                       {step.number}
                     </div>
                     <div className="md:w-1/2 md:pl-12 md:text-left">
                       {index % 2 === 1 ? (
                         <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-[#1E3A8A]">
+                          <h3 className="text-2xl font-bold text-primary">
                             {step.title}
                           </h3>
-                          <p className="text-gray-600">{step.description}</p>
+                          <p className="text-muted-foreground">
+                            {step.description}
+                          </p>
                         </div>
                       ) : (
                         <div className="md:hidden space-y-2">
-                          <h3 className="text-2xl font-bold text-[#1E3A8A]">
+                          <h3 className="text-2xl font-bold text-primary">
                             {step.title}
                           </h3>
-                          <p className="text-gray-600">{step.description}</p>
+                          <p className="text-muted-foreground">
+                            {step.description}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -318,17 +330,17 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="py-16 bg-[#1E3A8A] text-white">
+        <section className="py-16 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl font-bold mb-6">
               Ready to Transform Your Learning Experience?
             </h2>
-            <p className="max-w-2xl mx-auto mb-8 text-blue-100">
+            <p className="max-w-2xl mx-auto mb-8 text-primary-foreground/80">
               Join thousands of Algerian students who are already using Aspo to
               achieve academic excellence.
             </p>
             <Link to="/auth/register">
-              <Button className="bg-white text-[#1E3A8A] hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8 font-semibold">
+              <Button className="bg-background text-primary hover:bg-secondary transition-all transform hover:scale-105 shadow-lg text-base py-6 px-8 font-semibold">
                 Get Started Today
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
@@ -337,14 +349,14 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t bg-white">
+      <footer className="border-t bg-background">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-[#1E3A8A]">Aspo</span>
+                <span className="text-xl font-bold text-primary">Aspo</span>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Empowering Algerian students with innovative learning tools and
                 a supportive community.
               </p>
@@ -383,7 +395,7 @@ export function LandingPage() {
                   <Link
                     key={index}
                     to="#"
-                    className="text-gray-500 hover:text-[#1E3A8A] transition-colors"
+                    className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -426,12 +438,12 @@ export function LandingPage() {
             ].map((column, index) => (
               <div key={index} className="space-y-4">
                 <h3 className="text-sm font-medium">{column.title}</h3>
-                <ul className="space-y-2 text-sm text-gray-500">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   {column.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <Link
                         to="#"
-                        className="hover:text-[#1E3A8A] transition-colors"
+                        className="hover:text-primary transition-colors"
                       >
                         {link}
                       </Link>
@@ -442,10 +454,10 @@ export function LandingPage() {
             ))}
           </div>
           <div className="mt-10 border-t pt-6 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} Aspo. All rights reserved.
             </p>
-            <p className="text-xs text-gray-500 mt-2 md:mt-0">
+            <p className="text-xs text-muted-foreground mt-2 md:mt-0">
               Made with ❤️ in Algeria
             </p>
           </div>

@@ -138,3 +138,5 @@
 2025-04-10 23:32:25:3225 [32minfo[39m: [32mServer running on port 3000 in development mode[39m
 2025-04-11 02:54:34:5434 [32minfo[39m: [32mServer running on port 3000 in development mode[39m
 2025-04-11 04:05:42:542 [32minfo[39m: [32mServer running on port 3000 in development mode[39m
+2025-04-11 10:15:31:1531 [35mhttp[39m: [35mPOST /api/v1/auth/register 404 77 - 1.557 ms[39m
+2025-04-11 10:15:50:1550 [35mhttp[39m: [35mPOST /api/v1/auth/login 404 77 - 0.558 ms[39m

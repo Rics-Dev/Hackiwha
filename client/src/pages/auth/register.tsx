@@ -91,14 +91,14 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
-        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-blue-100 shadow-lg">
+        <div className="w-full max-w-md space-y-8 bg-background p-8 rounded-xl border border-border shadow-lg">
           <div className="text-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Create your account
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-muted-foreground mt-2">
               Join the Algerian educational community
             </p>
           </div>
@@ -106,7 +106,7 @@ export function RegisterPage() {
           {step === 1 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <p className="font-medium text-[#1E3A8A]">Select your role</p>
+                <p className="font-medium text-primary">Select your role</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -125,7 +125,7 @@ export function RegisterPage() {
               </div>
 
               <Button
-                className="w-full bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md py-6 text-base"
+                className="w-full bg-primary hover:bg-purple-800 transition-all shadow-md py-6 text-base"
                 disabled={!role}
                 onClick={() => setStep(2)}
               >
@@ -138,7 +138,7 @@ export function RegisterPage() {
           {step === 2 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <p className="font-medium text-[#1E3A8A]">
+                <p className="font-medium text-primary">
                   Create your account
                 </p>
               </div>
@@ -157,7 +157,7 @@ export function RegisterPage() {
                     type="text"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder="Your full name"
                     required
                   />
@@ -176,7 +176,7 @@ export function RegisterPage() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder="your.email@example.com"
                     required
                   />
@@ -194,7 +194,7 @@ export function RegisterPage() {
                     type="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder="••••••••"
                     required
                   />
@@ -212,7 +212,7 @@ export function RegisterPage() {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder="••••••••"
                     required
                   />
@@ -223,13 +223,13 @@ export function RegisterPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setStep(1)}
-                    className="border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50"
+                    className="border-primary text-primary hover:bg-purple-50"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md"
+                    className="flex-1 bg-primary hover:bg-primary/80 transition-all shadow-md"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
@@ -248,7 +248,7 @@ export function RegisterPage() {
               <div>
                 <Button
                   variant="outline"
-                  className="w-full border border-gray-200 hover:bg-blue-50/50 shadow-sm"
+                  className="w-full border border-gray-200 hover:bg-primary-50/50 shadow-sm"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -277,7 +277,7 @@ export function RegisterPage() {
                   Already have an account?{" "}
                   <Link
                     to="/auth/login"
-                    className="text-[#1E3A8A] hover:underline font-medium"
+                    className="text-primary hover:underline font-medium"
                   >
                     Sign in
                   </Link>
@@ -289,7 +289,7 @@ export function RegisterPage() {
           {step === 3 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <p className="font-medium text-[#1E3A8A]">
+                <p className="font-medium text-primary">
                   Complete your {role} profile
                 </p>
               </div>
@@ -308,7 +308,7 @@ export function RegisterPage() {
                     type="text"
                     value={profileData.location}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder="e.g., Algiers"
                   />
                 </div>
@@ -326,7 +326,7 @@ export function RegisterPage() {
                     name="preferredLanguage"
                     value={profileData.preferredLanguage}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                   >
                     <option value="French">French</option>
                     <option value="Arabic">Arabic</option>
@@ -349,7 +349,7 @@ export function RegisterPage() {
                         name="studyLevel"
                         value={profileData.studyLevel}
                         onChange={handleProfileChange}
-                        className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                        className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                       >
                         <option value="">Select your study level</option>
                         <option value="primary">Primary School</option>
@@ -382,7 +382,7 @@ export function RegisterPage() {
                           >
                             <input
                               type="checkbox"
-                              className="rounded border-blue-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/50"
+                              className="rounded border-primary-300 text-primary focus:ring-primary/50"
                             />
                             <span>{skill}</span>
                           </label>
@@ -419,7 +419,7 @@ export function RegisterPage() {
                           >
                             <input
                               type="checkbox"
-                              className="rounded border-blue-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/50"
+                              className="rounded border-primary-300 text-primary focus:ring-primary/50"
                             />
                             <span>{skill}</span>
                           </label>
@@ -439,7 +439,7 @@ export function RegisterPage() {
                         type="text"
                         value={profileData.credentials}
                         onChange={handleProfileChange}
-                        className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                        className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                         placeholder="e.g., 5 years teaching experience, certified in..."
                       />
                     </div>
@@ -461,7 +461,7 @@ export function RegisterPage() {
                     name="bio"
                     value={profileData.bio}
                     onChange={handleProfileChange}
-                    className="w-full px-3 py-2 rounded-md border border-blue-200 bg-blue-50/50 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                    className="w-full px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder={
                       role === "Mentor"
                         ? "Describe your teaching experience and expertise..."
@@ -475,13 +475,13 @@ export function RegisterPage() {
                 <Button
                   variant="outline"
                   onClick={() => setStep(2)}
-                  className="border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50"
+                  className="border-primary text-primary hover:bg-purple-50"
                 >
                   Back
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md"
+                  className="flex-1 bg-primary hover:bg-primary transition-all shadow-md"
                   disabled={isLoading}
                 >
                   {isLoading
@@ -510,12 +510,12 @@ function RoleCard({ title, description, selected, onClick }: RoleCardProps) {
     <button
       className={`p-4 rounded-lg border text-left transition-all ${
         selected
-          ? "border-[#1E3A8A] bg-[#1E3A8A]/5 ring-2 ring-[#1E3A8A]/10 shadow-md"
-          : "hover:border-[#1E3A8A]/50 hover:bg-blue-50/50"
+          ? "border-primary bg-primary/5 ring-2 ring-primary/10 shadow-md"
+          : "hover:border-primary/50 hover:bg-purple-50/50"
       }`}
       onClick={onClick}
     >
-      <h3 className="font-medium text-[#1E3A8A]">{title}</h3>
+      <h3 className="font-medium text-primary">{title}</h3>
       <p className="text-sm text-gray-600 mt-1">{description}</p>
     </button>
   );

@@ -39,14 +39,12 @@ export function LoginPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
-        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-blue-100 shadow-lg">
+        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-primary-100 shadow-lg">
           <div className="text-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Welcome back
             </h1>
             <p className="text-gray-600 mt-2">Sign in to your account</p>
@@ -68,7 +66,7 @@ export function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                  className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -86,7 +84,7 @@ export function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                  className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                   placeholder="••••••••"
                 />
               </div>
@@ -95,7 +93,7 @@ export function LoginPage() {
                   <input
                     id="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-blue-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/50"
+                    className="h-4 w-4 rounded border-primary-300 text-primary focus:ring-primary/50"
                   />
                   <label
                     htmlFor="remember-me"
@@ -107,7 +105,7 @@ export function LoginPage() {
                 <div className="text-sm">
                   <Link
                     to="/auth/forgot-password"
-                    className="text-[#1E3A8A] hover:underline"
+                    className="text-primary hover:underline"
                   >
                     Forgot your password?
                   </Link>
@@ -118,7 +116,7 @@ export function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md py-6 text-base"
+              className="w-full bg-primary hover:bg-primary/80 transition-all shadow-md py-6 text-base"
             >
               {isLoading ? "Signing in..." : "Sign in"}
               {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
@@ -134,7 +132,7 @@ export function LoginPage() {
 
             <Button
               variant="outline"
-              className="w-full border border-gray-200 hover:bg-blue-50/50 shadow-sm"
+              className="w-full border border-gray-200 hover:bg-primary-50/50 shadow-sm"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -162,7 +160,7 @@ export function LoginPage() {
                 Don't have an account?{" "}
                 <Link
                   to="/auth/register"
-                  className="text-[#1E3A8A] hover:underline font-medium"
+                  className="text-primary hover:underline font-medium"
                 >
                   Sign up
                 </Link>
