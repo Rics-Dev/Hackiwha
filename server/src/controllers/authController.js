@@ -1,26 +1,64 @@
-const {registerStudents} = require('../services/authservices')
-const {registerteachers} = require('../services/authservices')
- 
 
-const register = async ( req , res) => {
-    const {email, password, role} = req.body
+const {User } = require('../models/User')
+const jwt = require('jsonwebtoken')
 
-    try {
-        const student = await registerStudents ( email, password, role)
-        res.sattus(201).json({success: true, student})
-
-    } catch (err) {
-        res.sattus(400).json({success: false, error: err.message})
-    }
-
-
-    try {
-        const teacher = await registerteacher ( email, password, role)
-        res.sattus(201).json({success: true, teacher})
-
-    } catch (err) {
-        res.sattus(400).json({success: false, error: err.message})
-    }
+const signToken = (id, role) => {
+    return jwt.sign({id, role}, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN
+    })
 }
 
-module.exports = { register}
+ 
+exports.signup = async (req , res , next) => {
+
+    const {email, password, role, firstName, lastName} = req.body
+
+    if (!email || !password || !role || !firstName || !lastName  ) {
+
+        return res.satatus(400).json({error: 'fill the fields'})
+    }
+
+const user = await User.create({
+    email,
+    password,
+    role,
+    firstName,
+    lastName,
+
+})
+
+const token = signToken(user._id, user.role)
+
+res.status(201).json({token, role: user.role})
+
+}
+
+
+
+
+
+
+exports.signin = async (req, res, next) => {
+    const {email, password} = req.body
+
+const user = await User. findOne({email}).select('+password')
+
+if(!user) {
+    return res.status(401).json({error: 'invalid email or password'})
+
+}
+
+const  iscorrect = await bcrypt.compare(password, user.password)
+if (!iscorrect) {
+    return res.status(401).json({error: 'invalid amail or password'})
+}
+
+const token = signToken(user._id, user.role) 
+
+
+res.json({token, role: user.role})
+
+
+
+
+}
