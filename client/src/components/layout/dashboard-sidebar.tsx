@@ -9,6 +9,7 @@ import {
   GraduationCap,
   LineChart,
   MessageSquare,
+  Brain,
   Gift,
   Home,
   Settings,
@@ -46,21 +47,10 @@ const sidebarItems: SidebarItem[] = [
     icon: <Briefcase size={20} />,
   },
   {
-    label: "Expert Access",
-    href: "/dashboard/experts",
-    icon: <GraduationCap size={20} />,
+    label: "Ai Tools",
+    href: "/dashboard/ai-tools",
+    icon: <Brain size={20} />,
   },
-  {
-    label: "Progress",
-    href: "/dashboard/progress",
-    icon: <LineChart size={20} />,
-  },
-  {
-    label: "Community",
-    href: "/dashboard/community",
-    icon: <MessageSquare size={20} />,
-  },
-  { label: "Rewards", href: "/dashboard/rewards", icon: <Gift size={20} /> },
 ];
 
 export function DashboardSidebar() {

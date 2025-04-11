@@ -12,31 +12,21 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Language } from "@/types/app";
-import { Link } from "react-router-dom";
 
 export function DashboardHeader() {
   const [language, setLanguage] = useState<Language>("French");
-  const { user, logout } = useAuth();
+//   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    toast.success("Logged out successfully");
-    navigate("/auth/login");
-  };
+//   const handleLogout = () => {
+//     logout();
+//     toast.success("Logged out successfully");
+//     navigate("/auth/login");
+//   };
 
   return (
-    <header className="h-16 border-b bg-background sticky top-0 z-10 flex items-center px-6">
-      <div className="flex-1 flex items-center gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder="Search..."
-            className="h-9 w-full rounded-md border border-input bg-background px-9 text-sm outline-none focus:border-primary"
-          />
-        </div>
-      </div>
+    <header className="h-16 border-b bg-background sticky top-0 z-10 flex justify-end items-center px-6">
+
 
       <div className="flex items-center gap-4">
         <DropdownMenu>

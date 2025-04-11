@@ -11,7 +11,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout.tsx";
 import { ClassroomsPage } from "@/pages/dashboard/classrooms/index.tsx";
 import { StudyGroupsPage } from "@/pages/dashboard/study-groups/index.tsx";
 import { ResourcesPage } from "@/pages/dashboard/resources/index.tsx";
-import { WorkspacePage } from "@/pages/dashboard/workspace/index.tsx";
+import { WorkspacePage } from "@/pages/dashboard/workspace/workspace";
 import { AIToolsPage } from "@/pages/dashboard/ai-tools/index.tsx";
 import { LoginPage } from "@/pages/auth/login.tsx";
 import { RegisterPage } from "@/pages/auth/register.tsx";
@@ -61,10 +61,6 @@ const router = createBrowserRouter(
         />
         <Route path="resources" element={<ResourcesPage />} />
         <Route path="workspace" element={<WorkspacePage />} />
-        <Route path="experts" element={<div>Expert Access Page</div>} />
-        <Route path="progress" element={<div>Progress Tracking Page</div>} />
-        <Route path="community" element={<div>Community Hub Page</div>} />
-        <Route path="rewards" element={<div>Rewards Marketplace Page</div>} />
         <Route path="ai-tools" element={<AIToolsPage />} />
         <Route path="settings" element={<div>Settings Page</div>} />
       </Route>
