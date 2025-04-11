@@ -32,7 +32,7 @@ const studyGroups = [
     {
         id: '3',
         name: 'Arabic Literature Discussion',
-        description: 'Analysis and discussion of classical and modern Arabic literary works',
+        description: 'Analysis and discussion of classical and modern Arabic literary works for art students',
         subject: 'Arabic Literature',
         members: 12,
         maxMembers: 15,
@@ -266,7 +266,11 @@ function StudyGroupCard({ group }: StudyGroupCardProps) {
                     <span className="text-xs text-muted-foreground">
                         Last active: {new Date(group.lastActive).toLocaleDateString()}
                     </span>
-                    <Button size="sm">
+                    <Button size="sm" onClick={()=> 
+                        {
+                            window.location.href = `/dashboard/study-groups/${group.id}`
+                        }
+                     }>
                         Join Group
                     </Button>
                 </div>

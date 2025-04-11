@@ -1,16 +1,10 @@
-// src/components/layout/dashboard-sidebar.tsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   BookOpen,
   Users,
-  Library,
   Briefcase,
-  GraduationCap,
-  LineChart,
-  MessageSquare,
   Brain,
-  Gift,
   Home,
   Settings,
   LogOut,
@@ -24,8 +18,13 @@ type SidebarItem = {
   icon: React.ReactNode;
 };
 
-const sidebarItems: SidebarItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <Home size={20} /> },
+const commonSidebarItems: SidebarItem[] = [
+  { label: "Hub", href: "/dashboard", icon: <Home size={20} /> },
+  {
+    label: "Workspace",
+    href: "/dashboard/workspace",
+    icon: <Briefcase size={20} />,
+  },
   {
     label: "Classrooms",
     href: "/dashboard/classrooms",
@@ -37,32 +36,38 @@ const sidebarItems: SidebarItem[] = [
     icon: <Users size={20} />,
   },
   {
-    label: "Resources",
-    href: "/dashboard/resources",
-    icon: <Library size={20} />,
-  },
-  {
-    label: "Workspace",
-    href: "/dashboard/workspace",
-    icon: <Briefcase size={20} />,
-  },
-  {
-    label: "Ai Tools",
-    href: "/dashboard/ai-tools",
-    icon: <Brain size={20} />,
+  label: "AI Tools",
+  href: "/dashboard/ai-tools",
+  icon: <Brain size={20} />,
   },
 ];
+
+
 
 export function DashboardSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-
-  const handleLogout = () => {
+  const userRole = user?.role || "Student";  
+   const handleLogout = () => {
     logout();
     toast.success("Logged out successfully");
     navigate("/auth/login");
   };
+
+  // const getSidebarItems = () => {
+  //   const items = [...commonSidebarItems];
+
+  //   if (userRole === "Student") {
+  //     items.push(...studentSidebarItems);
+  //   } else if (userRole === "Mentor") {
+  //     items.push(...mentorSidebarItems);
+  //   }
+
+  //   return items;
+  // };
+
+  // const displayedSidebarItems = getSidebarItems();
 
   return (
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
@@ -73,7 +78,7 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="space-y-1 flex-1">
-        {sidebarItems.map((item) => {
+        {commonSidebarItems.map((item) => {
           const isActive = pathname === item.href;
 
           return (
@@ -114,14 +119,14 @@ export function DashboardSidebar() {
       <div className="mt-6 px-3">
         <div className="flex items-center gap-3 rounded-md bg-accent/50 p-3">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
-                {user?.name?.[0] || "U"}
+            {user?.name?.[0] || "U"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-                {user?.name || "User"}
+              {user?.name || "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-                {user?.role || "Student"}
+              {user?.role || "Student"}
             </p>
           </div>
         </div>

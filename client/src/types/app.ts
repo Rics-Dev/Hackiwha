@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
   }
 }
 
-export type UserRole = 'Student' | 'Expert';
+export type UserRole = 'Student' | 'Mentor';
 export type Language = 'French' | 'Arabic' | 'Tamazight';
 export type Skill = {
   name: string;

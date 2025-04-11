@@ -21,9 +21,31 @@ export function RegisterPage() {
     confirmPassword: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [profileData, setProfileData] = useState({
+    location: "",
+    studyLevel: "",
+    bio: "",
+    teachingSkills: [],
+    credentials: "",
+    preferredLanguage: "French",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfileChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,8 +74,14 @@ export function RegisterPage() {
       // Update auth context
       login(response.user, response.token);
 
-      toast.success("Registration successful!");
-      navigate("/dashboard");
+      // If we want to collect more profile information, proceed to step 3
+      // Otherwise, navigate to dashboard
+      if (step < 3) {
+        setStep(3);
+      } else {
+        toast.success("Registration successful!");
+        navigate("/dashboard");
+      }
     } catch (error) {
       toast.error("Registration failed. Please try again.");
       console.error("Registration error:", error);
@@ -89,10 +117,10 @@ export function RegisterPage() {
                   onClick={() => setRole("Student")}
                 />
                 <RoleCard
-                  title="Expert"
+                  title="Mentor"
                   description="Provide specialized guidance"
-                  selected={role === "Expert"}
-                  onClick={() => setRole("Expert")}
+                  selected={role === "Mentor"}
+                  onClick={() => setRole("Mentor")}
                 />
               </div>
 
@@ -262,25 +290,11 @@ export function RegisterPage() {
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-[#1E3A8A]">
-                  Complete your profile
+                  Complete your {role} profile
                 </p>
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium mb-1 text-gray-700"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
-                    placeholder="Your full name"
-                  />
-                </div>
                 <div>
                   <label
                     htmlFor="location"
@@ -290,42 +304,169 @@ export function RegisterPage() {
                   </label>
                   <input
                     id="location"
+                    name="location"
                     type="text"
+                    value={profileData.location}
+                    onChange={handleProfileChange}
                     className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
                     placeholder="e.g., Algiers"
                   />
                 </div>
+
+                {/* Language preference */}
+                <div>
+                  <label
+                    htmlFor="preferredLanguage"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
+                    Preferred Language
+                  </label>
+                  <select
+                    id="preferredLanguage"
+                    name="preferredLanguage"
+                    value={profileData.preferredLanguage}
+                    onChange={handleProfileChange}
+                    className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                  >
+                    <option value="French">French</option>
+                    <option value="Arabic">Arabic</option>
+                    <option value="Tamazight">Tamazight (Beta)</option>
+                  </select>
+                </div>
+
+                {/* Student-specific fields */}
                 {role === "Student" && (
-                  <div>
-                    <label
-                      htmlFor="studyLevel"
-                      className="block text-sm font-medium mb-1 text-gray-700"
-                    >
-                      Study Level
-                    </label>
-                    <select
-                      id="studyLevel"
-                      className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
-                    >
-                      <option value="">Select your study level</option>
-                      <option value="primary">Primary School</option>
-                      <option value="middle">Middle School</option>
-                      <option value="secondary">Secondary School</option>
-                      <option value="university">University</option>
-                    </select>
-                  </div>
+                  <>
+                    <div>
+                      <label
+                        htmlFor="studyLevel"
+                        className="block text-sm font-medium mb-1 text-gray-700"
+                      >
+                        Study Level
+                      </label>
+                      <select
+                        id="studyLevel"
+                        name="studyLevel"
+                        value={profileData.studyLevel}
+                        onChange={handleProfileChange}
+                        className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                      >
+                        <option value="">Select your study level</option>
+                        <option value="primary">Primary School</option>
+                        <option value="middle">Middle School</option>
+                        <option value="secondary">Secondary School</option>
+                        <option value="university">University</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="skills"
+                        className="block text-sm font-medium mb-1 text-gray-700"
+                      >
+                        Skills (Select your subjects of interest)
+                      </label>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {[
+                          "Mathematics",
+                          "Physics",
+                          "Chemistry",
+                          "Biology",
+                          "Arabic",
+                          "French",
+                          "English",
+                          "History",
+                        ].map((skill) => (
+                          <label
+                            key={skill}
+                            className="flex items-center space-x-2 text-sm"
+                          >
+                            <input
+                              type="checkbox"
+                              className="rounded border-blue-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/50"
+                            />
+                            <span>{skill}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
                 )}
+
+                {/* Mentor-specific fields */}
+                {role === "Mentor" && (
+                  <>
+                    <div>
+                      <label
+                        htmlFor="teachingSkills"
+                        className="block text-sm font-medium mb-1 text-gray-700"
+                      >
+                        Teaching Skills
+                      </label>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {[
+                          "Mathematics",
+                          "Physics",
+                          "Chemistry",
+                          "Biology",
+                          "Arabic",
+                          "French",
+                          "English",
+                          "History",
+                        ].map((skill) => (
+                          <label
+                            key={skill}
+                            className="flex items-center space-x-2 text-sm"
+                          >
+                            <input
+                              type="checkbox"
+                              className="rounded border-blue-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/50"
+                            />
+                            <span>{skill}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="credentials"
+                        className="block text-sm font-medium mb-1 text-gray-700"
+                      >
+                        Credentials
+                      </label>
+                      <input
+                        id="credentials"
+                        name="credentials"
+                        type="text"
+                        value={profileData.credentials}
+                        onChange={handleProfileChange}
+                        className="w-full h-10 px-3 rounded-md border border-blue-200 bg-blue-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
+                        placeholder="e.g., 5 years teaching experience, certified in..."
+                      />
+                    </div>
+                  </>
+                )}
+
                 <div>
                   <label
                     htmlFor="bio"
                     className="block text-sm font-medium mb-1 text-gray-700"
                   >
-                    Bio (Optional)
+                    Bio{" "}
+                    {role === "Mentor"
+                      ? "(Showcase your expertise)"
+                      : "(Optional)"}
                   </label>
                   <textarea
                     id="bio"
+                    name="bio"
+                    value={profileData.bio}
+                    onChange={handleProfileChange}
                     className="w-full px-3 py-2 rounded-md border border-blue-200 bg-blue-50/50 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/40 transition-all"
-                    placeholder="Tell us about yourself or add a quote from an Algerian scholar"
+                    placeholder={
+                      role === "Mentor"
+                        ? "Describe your teaching experience and expertise..."
+                        : "Tell us about yourself or add a quote from an Algerian scholar"
+                    }
                   ></textarea>
                 </div>
               </div>
@@ -338,9 +479,15 @@ export function RegisterPage() {
                 >
                   Back
                 </Button>
-                <Button className="flex-1 bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md">
-                  Complete Registration
-                  <ChevronRight className="ml-2 h-4 w-4" />
+                <Button
+                  onClick={handleSubmit}
+                  className="flex-1 bg-[#1E3A8A] hover:bg-[#152a66] transition-all shadow-md"
+                  disabled={isLoading}
+                >
+                  {isLoading
+                    ? "Completing Registration..."
+                    : "Complete Registration"}
+                  {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
                 </Button>
               </div>
             </div>

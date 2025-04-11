@@ -24,7 +24,7 @@ const classrooms = [
     {
         id: '3',
         name: 'Arabic Literature',
-        description: 'Classical and modern Arabic literary works',
+        description: 'Classical and modern Arabic literary works for art students',
         teacher: 'Dr. Karim Zidane',
         students: 32,
         lastActive: '2023-05-14T09:15:00Z',
