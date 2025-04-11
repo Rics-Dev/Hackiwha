@@ -18,6 +18,7 @@ export type Skill = {
 export interface UserProfile {
   id: string;
   name: string;
+  avatar?: string;
   email: string;
   role: UserRole;
   skills: Skill[];

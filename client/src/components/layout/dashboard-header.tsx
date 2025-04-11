@@ -1,4 +1,3 @@
-// src/components/layout/dashboard-header.tsx
 import { Bell, Search, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,16 +11,32 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Language } from "@/types/app";
+import { ModeToggle } from "../mode-toggle";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function DashboardHeader() {
   const [language, setLanguage] = useState<Language>("French");
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); 
   const navigate = useNavigate();
-  const userRole = user?.role; 
+  const userRole = user?.role;
 
   const handleLanguageChange = (newLanguage: Language) => {
     setLanguage(newLanguage);
     toast.success(`Language changed to ${newLanguage}`);
+  };
+
+  const handleJoinClassroom = () => {
+    toast.info("Join Classroom clicked!");
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await logout();
+      toast.success("Signed out successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Failed to sign out");
+    }
   };
 
   return (
@@ -35,32 +50,81 @@ export function DashboardHeader() {
         />
       </div> */}
 
-      <div className="flex items-center gap-4">
-        {/* <DropdownMenu>
+      <div className="flex items-center gap-2">
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
               size="sm"
               className="flex items-center gap-2"
             >
-              <Globe className="h-4 w-4" />
-              <span className="hidden sm:inline">{language}</span>
+              <span className="hidden sm:inline">
+                {language.slice(0, 2).toUpperCase()}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleLanguageChange("French")}>
-              🇫🇷 French {language === "French" && "✓"}
+              🇫🇷 Fr {language === "French" && "✓"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleLanguageChange("Arabic")}>
-              🇩🇿 Arabic {language === "Arabic" && "✓"}
+              🇩🇿 Ar {language === "Arabic" && "✓"}
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu> */}
+        </DropdownMenu>
 
-        <Button variant="ghost" size="icon">
+        <ModeToggle />
+
+        <Button variant="outline" size="icon">
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>
         </Button>
+
+
+        
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+          onClick={handleJoinClassroom}
+        >
+          <span className="hidden sm:inline">+ Join Classroom</span>
+          <span className="sm:hidden">+</span>
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>
+                  {user?.name?.charAt(0).toUpperCase() || "P"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline">
+                {user?.name || "Profile"}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              variant="destructive"
+            onClick={handleSignOut}>
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
       </div>
     </header>
   );
