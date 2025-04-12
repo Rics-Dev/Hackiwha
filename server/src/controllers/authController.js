@@ -288,3 +288,39 @@ exports.getMe = async (req, res, next) => {
     });
   }
 };
+
+
+exports.searchUsersByEmail = async (req, res, next) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "MISSING_QUERY", message: "Search query is required" },
+      });
+    }
+
+    const users = await User.find({
+      email: { $regex: query, $options: "i" },
+    })
+      .select("email name _id") 
+      .limit(5); 
+
+    res.json({
+      success: true,
+      data: {
+        users: users.map((user) => ({
+          _id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+        })),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: { code: "SERVER_ERROR", message: error.message },
+    });
+  }
+};
