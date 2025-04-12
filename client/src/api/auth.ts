@@ -14,7 +14,7 @@ interface AuthResponse {
   token: string;
 }
 
-const handleResponse = async <T>(response: Response): Promise<T> => {
+export const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     let errorMessage = `Error: ${response.statusText || response.status}`;
     try {
