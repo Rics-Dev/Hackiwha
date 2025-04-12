@@ -25,6 +25,7 @@ export interface UserProfile {
   preferredLanguage: Language;
   credentials?: string;
   createdAt: Date;
+  courses?: string[]; 
 }
 
 // Virtual Classrooms
@@ -36,7 +37,7 @@ export interface Classroom {
   teacherId: string;
   students: string[];
   assignments: Assignment[];
-  resources: Resource[];
+  resources: Resource[]; 
   createdAt: Date;
 }
 
@@ -60,7 +61,6 @@ export interface Submission {
   feedback?: string;
 }
 
-// Study Groups & Collaboration
 export interface StudyGroup {
   _id: string;
   name: string;
@@ -71,25 +71,10 @@ export interface StudyGroup {
   language: Language;
   location?: string;
   meetingLinks?: string[];
-  resources: Resource[];
+  resources: Resource[]; 
 }
 
-// Resource Library
-export type ResourceType = "Textbook" | "Exam" | "Video" | "Note" | "Article" | "Exercise";
 
-export interface Resource {
-  _id: string;
-  title: string;
-  description: string;
-  type: ResourceType;
-  subject: string;
-  language: Language;
-  url: string;
-  createdBy: string;
-  downloadable: boolean;
-  tags: string[];
-  createdAt: Date;
-}
 
 // Workspace
 export interface Task {
@@ -167,4 +152,27 @@ export interface VideoSummary {
   keyPoints: string[];
   timestamps: Record<string, number>; // key point -> timestamp in seconds
   language: Language;
+}
+
+export type ResourceType = "pdf" | "image" | "video" | "other";
+
+export interface Resource {
+  _id: string;
+  title: string;
+  description?: string;
+  type: ResourceType;
+  url: string; 
+  uploadedBy: string; 
+  courses: string[]; 
+  downloadable: boolean;
+  tags?: string[];
+  createdAt: Date;
+}
+
+export interface Course {
+  _id: string;
+  title: string;
+  description?: string;
+  creator: string; // User ID
+  createdAt: Date;
 }

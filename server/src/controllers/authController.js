@@ -241,3 +241,50 @@ exports.updateProfile = async (req, res, next) => {
     });
   }
 };
+
+
+exports.getMe = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: { code: "UNAUTHORIZED", message: "Authentication required" },
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: { code: "USER_NOT_FOUND", message: "User not found" },
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          _id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          skills: user.skills,
+          location: user.location,
+          studyLevel: user.studyLevel,
+          bio: user.bio,
+          knowledgePoints: user.knowledgePoints,
+          preferredLanguage: user.preferredLanguage,
+          credentials: user.credentials,
+          avatar: user.avatar,
+          createdAt: user.createdAt,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: { code: "SERVER_ERROR", message: error.message },
+    });
+  }
+};

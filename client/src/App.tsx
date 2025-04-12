@@ -5,7 +5,7 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider } from "./contexts/auth-context";
+import { AuthProvider, useAuth } from "./contexts/auth-context";
 import { Layout } from "@/layout.tsx";
 import { DashboardLayout } from "@/components/layout/dashboard-layout.tsx";
 import { ClassroomsPage } from "@/pages/dashboard/classrooms/index.tsx";
@@ -15,11 +15,10 @@ import { WorkspacePage } from "@/pages/dashboard/workspace/workspace";
 import { AIToolsPage } from "@/pages/dashboard/ai-tools/index.tsx";
 import { LoginPage } from "@/pages/auth/login.tsx";
 import { RegisterPage } from "@/pages/auth/register.tsx";
-import { lazy, Suspense } from "react";
+import { JSX, lazy, Suspense } from "react";
 import { LandingPage } from "./pages/landing/landing";
 import { DashboardPage } from "./pages/dashboard/dashboard";
 import { Toaster } from "sonner";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const ClassroomPage = lazy(
   () => import("@/pages/dashboard/classrooms/[id].tsx")
@@ -27,6 +26,20 @@ const ClassroomPage = lazy(
 const StudyGroupPage = lazy(
   () => import("@/pages/dashboard/study-groups/[id].tsx")
 );
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  return children;
+};
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -40,7 +53,14 @@ const router = createBrowserRouter(
         <Route path="register" element={<RegisterPage />} />
       </Route>
 
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<DashboardPage />} />
         <Route path="classrooms" element={<ClassroomsPage />} />
         <Route
@@ -72,11 +92,9 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    // <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || ""}>
-      <AuthProvider>
-        <Toaster position="top-center" richColors />
-        <RouterProvider router={router} />
-      </AuthProvider>
-    // </GoogleOAuthProvider>
+    <AuthProvider>
+      <Toaster position="top-center" richColors />
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }

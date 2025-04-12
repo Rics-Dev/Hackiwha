@@ -75,7 +75,7 @@ export function WorkspacePage() {
 
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const timerDurations = {
     pomodoro: 25 * 60,
@@ -175,16 +175,6 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Workspace</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <FileText className="mr-2 h-4 w-4" />
-            New Document
-          </Button>
-          <Button>
-            <MessageSquare className="mr-2 h-4 w-4" />
-            AI Assistant
-          </Button>
-        </div>
       </div>
 
       <Tabs

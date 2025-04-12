@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
     },
     preferredLanguage: {
       type: String,
-      enum: ["ar", "fr", "tzm"], // Arabic, French, Tamazight
+      enum: ["ar", "fr", "tzm"],
       default: "fr",
     },
     skills: {
@@ -59,13 +59,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       maxLength: 200,
     },
+    courses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
-// Indexes
 userSchema.index({ skills: 1, location: 1 });
 
 module.exports = mongoose.model("User", userSchema);

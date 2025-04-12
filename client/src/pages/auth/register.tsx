@@ -149,7 +149,6 @@ export function RegisterPage() {
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-primary">Select your role</p>
-                Trail of Bits Security
               </div>
 
               <div className="grid grid-cols-2 gap-4">

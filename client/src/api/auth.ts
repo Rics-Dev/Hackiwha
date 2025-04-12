@@ -1,5 +1,10 @@
-// src/api/auth-api.ts
-import { ApiResponse, Language, UserProfile, UserRole } from "@/types/types";
+import {
+  ApiResponse,
+  Course,
+  Language,
+  UserProfile,
+  UserRole,
+} from "@/types/types";
 
 const BASE_URL = "/api";
 
@@ -8,7 +13,6 @@ interface LoginCredentials {
   password: string;
 }
 
-
 interface AuthResponse {
   user: UserProfile;
   token: string;
@@ -16,7 +20,9 @@ interface AuthResponse {
 
 export const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
-    let errorMessage = `Error: ${response.statusText || response.status}`;
+    let errorMessage = `Error: ${response.statusText || response.status} (${
+      response.url
+    })`;
     try {
       const errorData = await response.json();
       errorMessage =
@@ -33,20 +39,20 @@ export const handleResponse = async <T>(response: Response): Promise<T> => {
   }
 
   if (!data.data) {
-    throw new Error('Response data is undefined');
+    throw new Error("Response data is undefined");
   }
   return data.data;
 };
 
-let authToken: string | null = null;
-
 export const authApi = {
   setAuthToken: (token: string) => {
-    authToken = token;
+    localStorage.setItem("auth_token", token);
   },
-  getAuthToken: () => authToken,
+  getAuthToken: () => {
+    return localStorage.getItem("auth_token");
+  },
   clearAuthToken: () => {
-    authToken = null;
+    localStorage.removeItem("auth_token");
   },
 
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
@@ -57,8 +63,11 @@ export const authApi = {
       },
       body: JSON.stringify(credentials),
     });
-    return handleResponse<AuthResponse>(response);
+    const authResponse = await handleResponse<AuthResponse>(response);
+    authApi.setAuthToken(authResponse.token);
+    return authResponse;
   },
+
   register: async (userData: {
     name: string;
     email: string;
@@ -72,21 +81,27 @@ export const authApi = {
       },
       body: JSON.stringify(userData),
     });
-    return handleResponse<AuthResponse>(response);
+    const authResponse = await handleResponse<AuthResponse>(response);
+    authApi.setAuthToken(authResponse.token);
+    return authResponse;
   },
+
   logout: async (): Promise<void> => {
     authApi.clearAuthToken();
   },
+
   checkAuth: async (): Promise<UserProfile> => {
-    if (!authToken) {
+    const token = authApi.getAuthToken();
+    if (!token) {
       throw new Error("No authentication token");
     }
     const response = await fetch(`${BASE_URL}/auth/me`, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
     });
-    return handleResponse<UserProfile>(response);
+    const data = await handleResponse<{ user: UserProfile }>(response);
+    return data.user; // Extract the user object from the response
   },
 
   updateProfile: async (profileData: {
@@ -98,14 +113,15 @@ export const authApi = {
     credentials?: string;
     avatar?: string;
   }): Promise<UserProfile> => {
-    if (!authToken) {
+    const token = authApi.getAuthToken();
+    if (!token) {
       throw new Error("No authentication token");
     }
     const response = await fetch(`${BASE_URL}/auth/profile`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(profileData),
     });
@@ -114,4 +130,38 @@ export const authApi = {
   },
 };
 
+export const courseApi = {
+  createCourse: async (courseData: {
+    title: string;
+    description?: string;
+  }): Promise<Course> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(`${BASE_URL}/courses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(courseData),
+    });
+    const data = await handleResponse<{ course: Course }>(response);
+    return data.course;
+  },
 
+  getMyCourses: async (): Promise<Course[]> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(`${BASE_URL}/courses/my-courses`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await handleResponse<{ courses: Course[] }>(response);
+    return data.courses;
+  },
+};

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import "@tldraw/tldraw/tldraw.css";
@@ -12,19 +12,30 @@ import {
   Clock,
   BookOpenText,
   FileBadge,
+  Loader2,
+  Plus,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Course } from "@/types/types";
+import { authApi, courseApi } from "@/api/auth";
 
-interface CourseItem {
-  id: string;
+type SearchResult = {
   title: string;
-  subject: string;
-  level: string;
-  description: string;
   url: string;
-  icon?: string;
-  progress?: number;
-}
+  type: "video" | "article" | "course";
+  source: string;
+  thumbnail?: string;
+};
 
 interface DashboardCard {
   title: string;
@@ -34,57 +45,102 @@ interface DashboardCard {
 }
 
 export function DashboardPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const userRole = user?.role || "Student";
-  const userStudyLevel = user?.studyLevel || "secondary";
+  const userRole = user?.role || "student";
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [newCourse, setNewCourse] = useState<{
+    title: string;
+    description: string;
+  }>({ title: "", description: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const allCourses: CourseItem[] = [
-    {
-      id: "1",
-      title: "Algebra Basics",
-      subject: "Mathematics",
-      level: "university",
-      description: "Introduction to algebraic expressions and equations.",
-      url: "https://example.com/course/algebra-basics",
-      icon: "📐",
-      progress: 75,
-    },
-    {
-      id: "2",
-      title: "World History",
-      subject: "History",
-      level: "university",
-      description: "Explore key events in global history.",
-      url: "https://example.com/course/world-history",
-      icon: "🏛️",
-      progress: 20,
-    },
-    {
-      id: "3",
-      title: "Organic Chemistry",
-      subject: "Chemistry",
-      level: "university",
-      description: "Study the structure and reactions of organic compounds.",
-      url: "https://example.com/course/organic-chemistry",
-      icon: "🧪",
-      progress: 0,
-    },
-    {
-      id: "4",
-      title: "Basic Arithmetic",
-      subject: "Mathematics",
-      level: "university",
-      description: "Learn addition, subtraction, and multiplication.",
-      url: "https://example.com/course/basic-arithmetic",
-      icon: "➕",
-      progress: 90,
-    },
-  ];
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const courses = allCourses.filter(
-    (course) => course.level === userStudyLevel
-  );
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedCourses = await courseApi.getMyCourses();
+        setCourses(fetchedCourses);
+      } catch (err) {
+        setError("Failed to fetch courses");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const handleAddCourse = async () => {
+    if (!newCourse.title) {
+      alert("Title is required");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const createdCourse = await courseApi.createCourse(newCourse);
+      setCourses((prev) => [...prev, createdCourse]);
+      setNewCourse({ title: "", description: "" });
+      setIsDialogOpen(false);
+    } catch (err) {
+      setError("Failed to create course");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const searchForCourseContent = async (course: Course) => {
+    setIsSearching(true);
+    setSearchError(null);
+    setSearchResults([]);
+
+    try {
+      const prompt = `
+        Find educational resources for a course on "${
+          course.title
+        }" (description: ${course.description || "N/A"}).
+        Provide a mix of YouTube videos and relevant articles or learning resources.
+        Format the response as a JSON array with objects containing:
+        {
+          "title": "Title of the resource",
+          "url": "URL to the resource",
+          "type": "video" or "article" or "course",
+          "source": "Source website or platform",
+          "thumbnail": "URL to thumbnail image" (only for videos)
+        }
+        Limit to 6 high-quality results total.
+      `;
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+
+      if (jsonMatch) {
+        const jsonData = JSON.parse(jsonMatch[0]);
+        setSearchResults(jsonData);
+      } else {
+        setSearchError("Failed to parse search results");
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error("Error fetching Gemini search results:", error);
+      setSearchError("Failed to fetch search results. Please try again.");
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const studentCards: DashboardCard[] = [
     {
@@ -149,10 +205,16 @@ export function DashboardPage() {
 
   const dashboardCards = userRole === "mentor" ? mentorCards : studentCards;
 
-  const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  useEffect(() => {
+    if (selectedCourse) {
+      searchForCourseContent(selectedCourse);
+    } else {
+      setSearchResults([]);
+      setSearchError(null);
+    }
+  }, [selectedCourse]);
 
-  const handleCourseClick = (course: CourseItem) => {
+  const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setIsExpanded(false);
   };
@@ -164,12 +226,6 @@ export function DashboardPage() {
 
   const handleToggleExpand = () => {
     setIsExpanded(!isExpanded);
-  };
-
-  const handleOpenInNewTab = () => {
-    if (selectedCourse) {
-      window.open(selectedCourse.url, "_blank", "noopener,noreferrer");
-    }
   };
 
   return (
@@ -194,64 +250,124 @@ export function DashboardPage() {
       <div className="space-y-4 bg-background p-6 rounded-md border border-border">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-foreground">My Courses</h1>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Course
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Course</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="title" className="text-right">
+                    Title
+                  </Label>
+                  <Input
+                    id="title"
+                    value={newCourse.title}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, title: e.target.value })
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    value={newCourse.description}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        description: e.target.value,
+                      })
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleAddCourse}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Add Course"
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="relative">
-          <div className="flex space-x-4 pb-4 overflow-x-auto max-w-5xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-            {courses.length > 0 ? (
-              courses.map((course) => (
+          {isLoading ? (
+            <div className="flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : courses.length > 0 ? (
+            <div className="flex space-x-4 pb-4 overflow-x-auto max-w-5xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+              {courses.map((course) => (
                 <Button
                   variant="outline"
                   size="sm"
-                  key={course.id}
-                  className="flex flex-col items-center justify-center.ConcurrentModificationException p-4 rounded-lg min-w-[120px] h-[140px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
+                  key={course._id}
+                  className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[140px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
                   onClick={() => handleCourseClick(course)}
                 >
-                  <span className="text-2xl mb-2">{course.icon || "📚"}</span>
+                  <span className="text-2xl mb-2">📚</span>
                   <span className="font-medium text-center">
                     {course.title}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {course.subject}
+                    {course.description?.substring(0, 20) || "No description"}
                   </span>
-                  {course.progress !== undefined && (
-                    <span className="text-xs text-primary">
-                      {course.progress}% Complete
-                    </span>
-                  )}
                 </Button>
-              ))
-            ) : (
-              <p className="text-muted-foreground">
-                No courses available for your study level ({userStudyLevel}).
-              </p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No courses created yet.</p>
+          )}
         </div>
       </div>
 
       <div className="space-y-4 bg-background p-4 rounded-md border border-border">
         <div className="w-full flex gap-4">
-          <div
-            className={`h-[500px] border rounded-md overflow-hidden transition-all duration-300 ease-in-out bg-background border-border ${
-              selectedCourse ? (isExpanded ? "hidden w-0" : "w-1/2") : "w-full"
-            }`}
-          >
-            <Tldraw
-              persistenceKey={`canvas-${user?._id || "default"}`}
-              className={theme === "dark" ? "tldraw-dark" : "tldraw-light"}
-            />
-          </div>
+          {!isDialogOpen && (
+            <div
+              className={`h-[500px] border rounded-md overflow-hidden transition-all duration-300 ease-in-out bg-background border-border ${
+                selectedCourse
+                  ? isExpanded
+                    ? "hidden w-0"
+                    : "w-1/2"
+                  : "w-full"
+              }`}
+            >
+              <Tldraw
+                persistenceKey={`canvas-${user?._id || "default"}`}
+                className={theme === "dark" ? "tldraw-dark" : "tldraw-light"}
+              />
+            </div>
+          )}
 
           {selectedCourse && (
             <div
-              className={`h-[500px] border rounded-md overflow-hidden flex flex-col transition-all duration-300 ease-in-out bg-background border-border ${
+              className={`h-[500px] border rounded-md overflow-auto flex flex-col transition-all duration-300 ease-in-out bg-background border-border ${
                 isExpanded ? "w-full" : "w-1/2"
               }`}
             >
-              <div className="flex justify-between items-center p-2 border-b border-border bg-background">
+              <div className="flex justify-between items-center p-2 border-b border-border bg-background sticky top-0 z-10">
                 <span className="font-medium text-foreground">
-                  {selectedCourse.title}
+                  {selectedCourse.title} - Learning Resources
                 </span>
                 <div className="space-x-2">
                   <Button
@@ -265,14 +381,6 @@ export function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleOpenInNewTab}
-                    className="p-1 text-foreground hover:bg-accent"
-                  >
-                    Open in New Tab
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     onClick={handleCloseCourse}
                     className="p-1 text-foreground hover:bg-accent"
                   >
@@ -280,12 +388,164 @@ export function DashboardPage() {
                   </Button>
                 </div>
               </div>
-              <iframe
-                src={selectedCourse.url}
-                className="w-full h-full border-none bg-background"
-                title={selectedCourse.title}
-                allow="fullscreen"
-              />
+
+              <div className="p-4 flex-1 overflow-auto">
+                {isSearching ? (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <p className="text-muted-foreground">
+                        Searching for resources on {selectedCourse.title}...
+                      </p>
+                    </div>
+                  </div>
+                ) : searchError ? (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="text-center max-w-md">
+                      <p className="text-red-500 mb-2">{searchError}</p>
+                      <Button
+                        variant="outline"
+                        onClick={() => searchForCourseContent(selectedCourse)}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Videos Section */}
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">
+                        Recommended Videos
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {searchResults
+                          .filter((result) => result.type === "video")
+                          .map((video, index) => (
+                            <a
+                              key={index}
+                              href={video.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex flex-col rounded-lg border border-border overflow-hidden hover:border-primary transition-colors"
+                            >
+                              <div className="h-32 bg-muted flex items-center justify-center relative">
+                                {video.thumbnail ? (
+                                  <img
+                                    src={video.thumbnail}
+                                    alt={video.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex items-center justify-center w-full h-full bg-accent/30">
+                                    <svg
+                                      className="w-12 h-12 text-muted-foreground"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                                    </svg>
+                                  </div>
+                                )}
+                                <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                  YouTube
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <h4 className="font-medium line-clamp-2">
+                                  {video.title}
+                                </h4>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {video.source}
+                                </p>
+                              </div>
+                            </a>
+                          ))}
+                        {searchResults.filter(
+                          (result) => result.type === "video"
+                        ).length === 0 && (
+                          <p className="text-muted-foreground col-span-2">
+                            No video resources found.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Articles and Other Resources Section */}
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">
+                        Learning Resources
+                      </h3>
+                      <div className="space-y-3">
+                        {searchResults
+                          .filter((result) => result.type !== "video")
+                          .map((resource, index) => (
+                            <a
+                              key={index}
+                              href={resource.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-start p-3 rounded-lg border border-border hover:border-primary transition-colors"
+                            >
+                              <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center text-primary mr-3 flex-shrink-0">
+                                {resource.type === "article" ? (
+                                  <svg
+                                    className="w-5 h-5"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1v5h5v10H6V4h7z" />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    className="w-5 h-5"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div>
+                                <h4 className="font-medium">
+                                  {resource.title}
+                                </h4>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {resource.source} •{" "}
+                                  {resource.type === "article"
+                                    ? "Article"
+                                    : "Course"}
+                                </p>
+                              </div>
+                            </a>
+                          ))}
+                        {searchResults.filter(
+                          (result) => result.type !== "video"
+                        ).length === 0 && (
+                          <p className="text-muted-foreground">
+                            No additional resources found.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {searchResults.length === 0 && !searchError && (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          No resources found for this course.
+                        </p>
+                        <Button
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => searchForCourseContent(selectedCourse)}
+                        >
+                          Refresh Results
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

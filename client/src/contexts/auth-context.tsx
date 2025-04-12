@@ -6,6 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { UserProfile } from "@/types/types";
+import { authApi } from "@/api/auth";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -29,18 +30,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = !!user && !!token;
 
   useEffect(() => {
-    const loadAuthData = () => {
+    const loadAuthData = async () => {
       try {
         const savedToken = localStorage.getItem("auth_token");
         const savedUser = localStorage.getItem("auth_user");
 
         if (savedToken && savedUser) {
           setToken(savedToken);
-          setUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+
+          // Validate token with server
+          try {
+            const validatedUser = await authApi.checkAuth();
+            setUser(validatedUser); // Update user with fresh data
+            localStorage.setItem("auth_user", JSON.stringify(validatedUser)); // Sync localStorage
+          } catch (error) {
+            console.error("Token validation failed:", error);
+            authApi.clearAuthToken();
+            localStorage.removeItem("auth_user");
+            setToken(null);
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error("Failed to load auth data:", error);
-        localStorage.removeItem("auth_token");
+        authApi.clearAuthToken();
         localStorage.removeItem("auth_user");
       } finally {
         setIsLoading(false);
@@ -53,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = (userData: UserProfile, authToken: string) => {
     setUser(userData);
     setToken(authToken);
+    authApi.setAuthToken(authToken);
 
     // Save to localStorage for persistence
     localStorage.setItem("auth_token", authToken);
@@ -62,9 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     setToken(null);
-
-    // Clear from localStorage
-    localStorage.removeItem("auth_token");
+    authApi.clearAuthToken();
     localStorage.removeItem("auth_user");
   };
 
