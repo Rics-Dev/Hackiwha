@@ -49,6 +49,14 @@ const commonSidebarItems: SidebarItem[] = [
   },
 ];
 
+const mentorSidebarItems: SidebarItem[] = [
+  {
+    label: "Tutoring Dashboard",
+    href: "/dashboard/mentor-dashboard",
+    icon: <Home size={20} />,
+  },
+]
+
 
 
 export function DashboardSidebar() {
@@ -62,19 +70,19 @@ export function DashboardSidebar() {
     navigate("/auth/login");
   };
 
-  // const getSidebarItems = () => {
-  //   const items = [...commonSidebarItems];
+  const getSidebarItems = () => {
+    const items = [...commonSidebarItems];
 
-  //   if (userRole === "Student") {
-  //     items.push(...studentSidebarItems);
-  //   } else if (userRole === "Mentor") {
-  //     items.push(...mentorSidebarItems);
-  //   }
+    if (userRole === "student") {
+           return items;
+    } else if (userRole === "mentor") {
+      items.push(...mentorSidebarItems);
+    }
 
-  //   return items;
-  // };
+    return items;
+  };
 
-  // const displayedSidebarItems = getSidebarItems();
+  const displayedSidebarItems = getSidebarItems();
 
   return (
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
@@ -86,7 +94,7 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="space-y-1 flex-1">
-        {commonSidebarItems.map((item) => {
+        {displayedSidebarItems.map((item) => {
           const isActive = pathname === item.href;
 
           return (
