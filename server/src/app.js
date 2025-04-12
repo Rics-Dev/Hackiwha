@@ -1,19 +1,18 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const dotenv = require ('dotenv')
-const authRoutes = require ('./routes/authRoutes')
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
 
-dotenv.config()
+const authRoutes = require('./routes/authRoutes');
+const errorHandler = require('./middleware/errorHandler'); 
 
-app.use(cors())
-app.use(express.json())
+dotenv.config();
 
+const app = express();
 
-app.use('/api/auth', require('./routes/authRoutes'))
-app.use('/api/classrooms', require('./routes/classroomRoutes'))
+app.use(cors());
+app.use(express.json());
 
+// Routes
+app.use('/api/auth', authRoutes);
 
-app.use(errorHandler)
-
- module.exports = app
+module.exports = app;

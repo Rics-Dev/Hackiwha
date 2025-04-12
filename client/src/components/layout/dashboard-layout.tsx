@@ -3,12 +3,13 @@ import { Outlet } from 'react-router-dom'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { DashboardHeader } from './dashboard-header'
 import { ThemeProvider, useTheme } from '../theme-provider'
+import { ProtectedRoute } from '../auth/protected-route';
 
 export function DashboardLayout() {
     
   const { theme } = useTheme(); 
     return (
-      //   <ProtectedRoute>
+        <ProtectedRoute>
       <ThemeProvider>
         <div className="min-h-screen bg-background flex">
           <DashboardSidebar />
@@ -24,6 +25,6 @@ export function DashboardLayout() {
           </div>
         </div>
       </ThemeProvider>
-      //   </ProtectedRoute>
+      </ProtectedRoute>
     );
 }

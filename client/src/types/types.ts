@@ -4,35 +4,31 @@ export interface ApiResponse<T> {
   error?: {
     code: string;
     message: string;
-  }
+  };
 }
 
-export type UserRole = 'Student' | 'Mentor';
-export type Language = 'French' | 'Arabic' | 'Tamazight';
-export type Skill = {
-  name: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
-  verified: boolean;
-};
+export type UserRole = "student" | "mentor";
+export type Language = "ar" | "fr" | "tzm";
 
 export interface UserProfile {
-  id: string;
+  _id: string;
   name: string;
   avatar?: string;
   email: string;
   role: UserRole;
-  skills: Skill[];
-  location: string;
+  skills: string[];
+  location?: string;
   studyLevel?: string;
   bio?: string;
   knowledgePoints: number;
   preferredLanguage: Language;
+  credentials?: string;
   createdAt: Date;
 }
 
 // Virtual Classrooms
 export interface Classroom {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   subject: string;
@@ -44,7 +40,7 @@ export interface Classroom {
 }
 
 export interface Assignment {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   dueDate: Date;
@@ -54,7 +50,7 @@ export interface Assignment {
 }
 
 export interface Submission {
-  id: string;
+  _id: string;
   studentId: string;
   assignmentId: string;
   content: string;
@@ -65,12 +61,12 @@ export interface Submission {
 
 // Study Groups & Collaboration
 export interface StudyGroup {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   subject: string;
   members: string[];
-  skillLevel: 'Beginner' | 'Intermediate' | 'Advanced';
+  skillLevel: "Beginner" | "Intermediate" | "Advanced";
   language: Language;
   location?: string;
   meetingLinks?: string[];
@@ -78,10 +74,10 @@ export interface StudyGroup {
 }
 
 // Resource Library
-export type ResourceType = 'Textbook' | 'Exam' | 'Video' | 'Note' | 'Article' | 'Exercise';
+export type ResourceType = "Textbook" | "Exam" | "Video" | "Note" | "Article" | "Exercise";
 
 export interface Resource {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   type: ResourceType;
@@ -96,7 +92,7 @@ export interface Resource {
 
 // Workspace
 export interface Task {
-  id: string;
+  _id: string;
   title: string;
   description?: string;
   dueDate?: Date;
@@ -106,20 +102,20 @@ export interface Task {
 
 // Expert Access
 export interface ExpertSession {
-  id: string;
+  _id: string;
   expertId: string;
   studentId: string;
   subject: string;
   scheduledAt: Date;
   duration: number; // in minutes
-  status: 'Scheduled' | 'Completed' | 'Cancelled';
+  status: "Scheduled" | "Completed" | "Cancelled";
   rating?: number;
   feedback?: string;
 }
 
 // Progress Tracking
 export interface Assessment {
-  id: string;
+  _id: string;
   title: string;
   subject: string;
   userId: string;
@@ -130,7 +126,7 @@ export interface Assessment {
 
 // Community Hub
 export interface ForumThread {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   authorId: string;
@@ -142,7 +138,7 @@ export interface ForumThread {
 }
 
 export interface ForumReply {
-  id: string;
+  _id: string;
   content: string;
   authorId: string;
   threadId: string;
@@ -153,17 +149,17 @@ export interface ForumReply {
 
 // AI-Powered Tools
 export interface GeneratedExercise {
-  id: string;
+  _id: string;
   subject: string;
   topic: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   content: string;
   solution?: string;
   language: Language;
 }
 
 export interface VideoSummary {
-  id: string;
+  _id: string;
   videoUrl: string;
   title: string;
   duration: number; // in seconds

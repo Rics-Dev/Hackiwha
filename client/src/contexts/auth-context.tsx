@@ -5,7 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { UserProfile } from "@/types/app";
+import { UserProfile } from "@/types/types";
 
 interface AuthContextType {
   user: UserProfile | null;

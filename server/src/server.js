@@ -1,11 +1,21 @@
-const app = require('./app')
-const connectDB = require('./config/db')
-const setupSocket = require('./config/socket')
-const PORT = process.env.PORT || 5000
+const app = require('./app');
+const connectDB = require('./config/db');
 
-app.listen(PORT , () => {
-    console.log('server running')
-})
+const PORT = process.env.PORT || 5001;
 
-connectDB()
-setupSocket(server)
+const start = async () => {
+  try {
+    await connectDB();
+    console.log('Database connected');
+
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+  } catch (err) {
+    console.error('Error starting server:', err);
+    process.exit(1);
+  }
+};
+
+start();

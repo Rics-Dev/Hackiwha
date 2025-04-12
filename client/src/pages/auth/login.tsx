@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/auth";
+import { AuthRedirect } from "@/components/auth/auth-redirect";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -40,6 +41,9 @@ export function LoginPage() {
   };
 
   return (
+    <AuthRedirect>
+
+
     <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
         <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-primary-100 shadow-lg">
@@ -179,5 +183,6 @@ export function LoginPage() {
         </div>
       </footer>
     </div>
+    </AuthRedirect>
   );
 }

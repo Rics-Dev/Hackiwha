@@ -1,39 +1,71 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        match: /^\S+@\S+\.\S+$/ 
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
     },
-
-    password: {
-        type: String,
-        required: true,
-        minlength: 6 
+    passwordHash: {
+      type: String,
+      required: true,
     },
-     
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 100,
+    },
     role: {
-        type: String,
-        enum: ['Student ', 'Teacher'],
-        required: true
+      type: String,
+      enum: ["student", "mentor"],
+      default: "student",
+      required: true,
     },
+    location: {
+      type: String,
+      maxLength: 100,
+    },
+    preferredLanguage: {
+      type: String,
+      enum: ["ar", "fr", "tzm"], // Arabic, French, Tamazight
+      default: "fr",
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    bio: {
+      type: String,
+      maxLength: 500,
+    },
+    knowledgePoints: {
+      type: Number,
+      default: 0,
+    },
+    studyLevel: {
+      type: String,
+      enum: ["primary", "middle", "secondary", "university", ""],
+      default: "",
+    },
+    credentials: {
+      type: String,
+      maxLength: 200,
+    },
+    avatar: {
+      type: String,
+      maxLength: 200,
+    },
+  },
+  {
+    timestamps: true, 
+  }
+);
 
+// Indexes
+userSchema.index({ skills: 1, location: 1 });
 
-    firstName: {type: String, required: true},
-    lastName: { type: String, required: true},
-    
-
-
-
-});
-
-UserSchema.pre('save', async function(next) {
-    if (!this.modifiedpass ('password')) return next()
-        this.password = await bcrypt.hash(this.password, 12)
-    next()
-})
-
-module.exports = mongoose.model('USER', userSchema)
-
+module.exports = mongoose.model("User", userSchema);

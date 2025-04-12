@@ -1,37 +1,32 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const User = require('../models/User')
-
-exports.protect = async (req, res,next) => {
-    let token
-    if (req.headers.authorization?.startsWith('Bearer')) {
-      token = req.heqders.authorization.split('')  [1]
-    }
-
+exports.authMiddleware = async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-
-        return res.status(401).json({error: 'not authorized'})
+      return res.status(401).json({
+        success: false,
+        error: { code: "NO_TOKEN", message: "No token provided" },
+      });
     }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        req.user = await User.findID(decoded.id)
-        next()
-    } catch (err) {
-        res.status(401).json({error: 'invalid token'})
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: { code: "INVALID_TOKEN", message: "Invalid token" },
+      });
     }
-}
 
-
-
-
-
-exports.restrictTo = (...roles) => {
-    return (req, res, next) => {
-     if (!roles.includes(req.user.role)) {
-        return res.status(403).json({error: 'access denied'})
-     }  
-     
-     next()
-    }
-}
+    req.user = { id: user._id, role: user.role };
+    next();
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      error: { code: "AUTH_ERROR", message: "Authentication failed" },
+    });
+  }
+};

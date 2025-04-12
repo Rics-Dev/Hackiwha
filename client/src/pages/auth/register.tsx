@@ -1,12 +1,12 @@
-// src/pages/auth/register.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/types/app";
 import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/auth";
 import { toast } from "sonner";
+import { Language, UserRole } from "@/types/types";
+import { AuthRedirect } from "@/components/auth/auth-redirect";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -20,14 +20,13 @@ export function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
-
   const [profileData, setProfileData] = useState({
     location: "",
     studyLevel: "",
     bio: "",
-    teachingSkills: [],
+    skills: [] as string[],
     credentials: "",
-    preferredLanguage: "French",
+    preferredLanguage: "fr",
   });
 
   const handleChange = (
@@ -48,10 +47,19 @@ export function RegisterPage() {
     setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSkillChange = (skill: string, checked: boolean) => {
+    setProfileData((prev) => ({
+      ...prev,
+      skills: checked
+        ? [...prev.skills, skill]
+        : prev.skills.filter((s) => s !== skill),
+    }));
+  };
 
-    // Validate passwords match
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (step === 2) {
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -60,37 +68,54 @@ export function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Register the user
-      const response = await authApi.register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: role as string,
-      });
 
-      // Set the auth token
+  const userData = {
+    name: formData.name,
+    email: formData.email,
+    password: formData.password,
+    ...(role && { role }),
+  };
+
+  const response = await authApi.register(userData);
+
       authApi.setAuthToken(response.token);
 
-      // Update auth context
       login(response.user, response.token);
-
-      // If we want to collect more profile information, proceed to step 3
-      // Otherwise, navigate to dashboard
-      if (step < 3) {
-        setStep(3);
-      } else {
-        toast.success("Registration successful!");
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
+      setStep(3);
+    } catch (error: any) {
       console.error("Registration error:", error);
+toast.error(error.message || "Registration failed. Please try again.");
+console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+ } else if (step === 3) {
+    setIsLoading(true);
+
+    try {
+      await authApi.updateProfile({
+        location: profileData.location,
+        preferredLanguage: profileData.preferredLanguage as Language,
+        bio: profileData.bio,
+        skills: profileData.skills,
+        studyLevel: profileData.studyLevel,
+        credentials: profileData.credentials,
+      });
+
+      toast.success("Profile updated successfully!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Profile update failed. Please try again.");
+      console.error("Profile update error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+};
 
   return (
+    <AuthRedirect>
+
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
         <div className="w-full max-w-md space-y-8 bg-background p-8 rounded-xl border border-border shadow-lg">
@@ -107,20 +132,21 @@ export function RegisterPage() {
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-primary">Select your role</p>
-              </div>
+             Trail of Bits Security
+             </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <RoleCard
                   title="Student"
                   description="Access learning resources and connect with peers"
-                  selected={role === "Student"}
-                  onClick={() => setRole("Student")}
+                  selected={role === "student"}
+                  onClick={() => setRole("student")}
                 />
                 <RoleCard
                   title="Mentor"
                   description="Provide specialized guidance"
-                  selected={role === "Mentor"}
-                  onClick={() => setRole("Mentor")}
+                  selected={role === "mentor"}
+                  onClick={() => setRole("mentor")}
                 />
               </div>
 
@@ -294,7 +320,7 @@ export function RegisterPage() {
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label
                     htmlFor="location"
@@ -313,7 +339,6 @@ export function RegisterPage() {
                   />
                 </div>
 
-                {/* Language preference */}
                 <div>
                   <label
                     htmlFor="preferredLanguage"
@@ -328,14 +353,13 @@ export function RegisterPage() {
                     onChange={handleProfileChange}
                     className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                   >
-                    <option value="French">French</option>
-                    <option value="Arabic">Arabic</option>
-                    <option value="Tamazight">Tamazight (Beta)</option>
+                    <option value="fr">French</option>
+                    <option value="ar">Arabic</option>
+                    <option value="tzm">Tamazight</option>
                   </select>
                 </div>
 
-                {/* Student-specific fields */}
-                {role === "Student" && (
+                {role === "student" && (
                   <>
                     <div>
                       <label
@@ -360,7 +384,6 @@ export function RegisterPage() {
                     </div>
                     <div>
                       <label
-                        htmlFor="skills"
                         className="block text-sm font-medium mb-1 text-gray-700"
                       >
                         Skills (Select your subjects of interest)
@@ -382,6 +405,10 @@ export function RegisterPage() {
                           >
                             <input
                               type="checkbox"
+                              checked={profileData.skills.includes(skill)}
+                              onChange={(e) =>
+                                handleSkillChange(skill, e.target.checked)
+                              }
                               className="rounded border-primary-300 text-primary focus:ring-primary/50"
                             />
                             <span>{skill}</span>
@@ -392,12 +419,10 @@ export function RegisterPage() {
                   </>
                 )}
 
-                {/* Mentor-specific fields */}
-                {role === "Mentor" && (
+                {role === "mentor" && (
                   <>
                     <div>
                       <label
-                        htmlFor="teachingSkills"
                         className="block text-sm font-medium mb-1 text-gray-700"
                       >
                         Teaching Skills
@@ -419,6 +444,10 @@ export function RegisterPage() {
                           >
                             <input
                               type="checkbox"
+                              checked={profileData.skills.includes(skill)}
+                              onChange={(e) =>
+                                handleSkillChange(skill, e.target.checked)
+                              }
                               className="rounded border-primary-300 text-primary focus:ring-primary/50"
                             />
                             <span>{skill}</span>
@@ -452,7 +481,7 @@ export function RegisterPage() {
                     className="block text-sm font-medium mb-1 text-gray-700"
                   >
                     Bio{" "}
-                    {role === "Mentor"
+                    {role === "mentor"
                       ? "(Showcase your expertise)"
                       : "(Optional)"}
                   </label>
@@ -463,38 +492,41 @@ export function RegisterPage() {
                     onChange={handleProfileChange}
                     className="w-full px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                     placeholder={
-                      role === "Mentor"
+                      role === "mentor"
                         ? "Describe your teaching experience and expertise..."
                         : "Tell us about yourself or add a quote from an Algerian scholar"
                     }
                   ></textarea>
                 </div>
-              </div>
 
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep(2)}
-                  className="border-primary text-primary hover:bg-purple-50"
-                >
-                  Back
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  className="flex-1 bg-primary hover:bg-primary transition-all shadow-md"
-                  disabled={isLoading}
-                >
-                  {isLoading
-                    ? "Completing Registration..."
-                    : "Complete Registration"}
-                  {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
-                </Button>
-              </div>
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep(2)}
+                    className="border-primary text-primary hover:bg-purple-50"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-primary hover:bg-primary transition-all shadow-md"
+                    disabled={isLoading}
+                  >
+                    {isLoading
+                      ? "Completing Registration..."
+                      : "Complete Registration"}
+                    {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
+                  </Button>
+                </div>
+              </form>
             </div>
           )}
         </div>
       </div>
     </div>
+
+    </AuthRedirect>
   );
 }
 

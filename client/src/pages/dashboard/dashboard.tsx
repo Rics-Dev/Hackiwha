@@ -167,7 +167,7 @@ export function DashboardPage() {
             }`}
           >
             <Tldraw
-              persistenceKey={`canvas-${user?.id || "default"}`}
+              persistenceKey={`canvas-${user?._id || "default"}`}
               className={theme === "dark" ? "tldraw-dark" : "tldraw-light"}
             />
           </div>

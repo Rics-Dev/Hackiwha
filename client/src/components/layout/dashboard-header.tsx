@@ -10,13 +10,13 @@ import { useAuth } from "@/contexts/auth-context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Language } from "@/types/app";
+import { Language } from "@/types/types";
 import { ModeToggle } from "../mode-toggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function DashboardHeader() {
-  const [language, setLanguage] = useState<Language>("French");
-  const { user, logout } = useAuth(); 
+  const [language, setLanguage] = useState<Language>("fr");
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const userRole = user?.role;
 
@@ -64,11 +64,11 @@ export function DashboardHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleLanguageChange("French")}>
-              🇫🇷 Fr {language === "French" && "✓"}
+            <DropdownMenuItem onClick={() => handleLanguageChange("fr")}>
+              🇫🇷 Fr {language === "fr" && "✓"}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleLanguageChange("Arabic")}>
-              🇩🇿 Ar {language === "Arabic" && "✓"}
+            <DropdownMenuItem onClick={() => handleLanguageChange("ar")}>
+              🇩🇿 Ar {language === "ar" && "✓"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -80,8 +80,6 @@ export function DashboardHeader() {
           <span className="sr-only">Notifications</span>
         </Button>
 
-
-        
         <Button
           variant="outline"
           size="sm"
@@ -117,14 +115,11 @@ export function DashboardHeader() {
             <DropdownMenuItem onClick={() => navigate("/settings")}>
               Settings
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              variant="destructive"
-            onClick={handleSignOut}>
+            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
               Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
       </div>
     </header>
   );
