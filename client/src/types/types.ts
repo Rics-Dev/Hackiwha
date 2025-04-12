@@ -165,6 +165,7 @@ export interface Resource {
   uploadedBy: string;
   courses: string[];
   downloadable: boolean;
+  selected?: boolean;
   tags?: string[];
   createdAt: Date;
 }

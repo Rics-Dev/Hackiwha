@@ -30,10 +30,9 @@ const tasks = [
   { id: "5", title: "Complete chemistry lab report", completed: false },
 ];
 
-
 // Add this type definition near the top of the file
 type ChatMessage = {
-  sender: 'user' | 'bot';
+  sender: "user" | "bot";
   text: string;
 };
 
@@ -111,13 +110,13 @@ export function WorkspacePage() {
     }
   };
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  generationConfig: {
-    maxOutputTokens: 2048,
-  },
-});
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: {
+      maxOutputTokens: 2048,
+    },
+  });
 
   const timerDurations = {
     pomodoro: 25 * 60,
@@ -182,6 +181,43 @@ const model = genAI.getGenerativeModel({
     );
   };
 
+  const sendDocumentChatMessage = async () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage: ChatMessage = { sender: "user", text: chatInput };
+    setChatMessages((prev) => [...prev, userMessage]);
+    setIsChatLoading(true);
+
+    try {
+      const selectedDocs = resources
+        .filter((r: any) => r.selected)
+        .map((r) => r.title);
+      const documentContext =
+        selectedDocs.length > 0
+          ? `Using the following documents: ${selectedDocs.join(
+              ", "
+            )}, please answer: ${chatInput}`
+          : chatInput;
+
+      const result = await model.generateContent(documentContext);
+      const botMessage: ChatMessage = {
+        sender: "bot",
+        text: result.response.text(),
+      };
+      setChatMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error fetching Gemini response:", error);
+      const errorMessage: ChatMessage = {
+        sender: "bot",
+        text: "Sorry, I couldn't process your request with the selected documents. Please try again.",
+      };
+      setChatMessages((prev) => [...prev, errorMessage]);
+    }
+
+    setChatInput("");
+    setIsChatLoading(false);
+  };
+
   const sendChatMessage = async () => {
     if (!chatInput.trim()) return;
 
@@ -190,9 +226,26 @@ const model = genAI.getGenerativeModel({
     setIsChatLoading(true);
 
     try {
-      const result = await model.generateContent(chatInput);
-      const botMessage: ChatMessage = { sender: "bot", text: result.response.text() };
-      setChatMessages((prev) => [...prev, botMessage]);
+      if (resources.some(r => r.selected)) {
+        const selectedDocs = resources
+          .filter((r: any) => r.selected)
+          .map((r) => r.title);
+        const documentContext = `Using the following documents: ${selectedDocs.join(", ")}, please answer: ${chatInput}`;
+        
+        const result = await model.generateContent(documentContext);
+        const botMessage: ChatMessage = {
+          sender: "bot",
+          text: result.response.text(),
+        };
+        setChatMessages((prev) => [...prev, botMessage]);
+      } else {
+        const result = await model.generateContent(chatInput);
+        const botMessage: ChatMessage = {
+          sender: "bot",
+          text: result.response.text(),
+        };
+        setChatMessages((prev) => [...prev, botMessage]);
+      }
     } catch (error) {
       console.error("Error fetching Gemini response:", error);
       const errorMessage: ChatMessage = {
@@ -381,6 +434,11 @@ const model = genAI.getGenerativeModel({
 
             <div className="relative">
               <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 rounded-lg p-2 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
+                {resources.some(r => r.selected) && (
+                  <div className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-xs rounded-full">
+                    Chat with {resources.filter(r => r.selected).length} documents
+                  </div>
+                )}
                 <textarea
                   className="w-full bg-transparent border-0 focus:ring-0 text-sm min-h-[50px] max-h-[150px] resize-none outline-none px-2 py-2 text-gray-800 dark:text-white placeholder-gray-400"
                   placeholder="Ask the AI assistant anything..."
@@ -562,6 +620,20 @@ const model = genAI.getGenerativeModel({
                 className="border rounded-lg p-4 bg-card hover:border-primary/50 transition-colors"
               >
                 <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={resource.selected || false}
+                    onChange={() => {
+                      setResources(
+                        resources.map((r) =>
+                          r._id === resource._id
+                            ? { ...r, selected: !r.selected }
+                            : r
+                        )
+                      );
+                    }}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
                   <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center text-primary">
                     <FileText className="h-5 w-5" />
                   </div>
