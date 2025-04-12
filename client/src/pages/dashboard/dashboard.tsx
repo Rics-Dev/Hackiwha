@@ -14,6 +14,7 @@ import {
   BookOpenText,
   FileBadge,
   Loader2,
+  File,
   Plus,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/select"; 
 import { Course } from "@/types/types";
 import { authApi, courseApi } from "@/api/api";
+import { jsPDF } from "jspdf";
 
 const availableIcons = [
   { value: "📚", label: "Book" },
@@ -355,6 +357,32 @@ export function DashboardPage() {
     setIsExpanded(!isExpanded);
   };
 
+  const exportToPdf = () => {
+    if (!videoSummary) return;
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text(`Summary: ${selectedCourse?.title || "Video Summary"}`, 10, 15);
+
+    // Add video URL if available
+    if (selectedVideoUrl) {
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Source: ${selectedVideoUrl}`, 10, 25);
+    }
+
+    // Add summary content
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    const splitText = doc.splitTextToSize(videoSummary, 180);
+    doc.text(splitText, 10, 35);
+
+    // Save the PDF
+    doc.save(`${selectedCourse?.title || "video"}-summary.pdf`);
+  };
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -605,23 +633,35 @@ export function DashboardPage() {
                       <div className="mb-6">
                         {videoSummary && (
                           <div className="mt-6 mb-6 p-6 rounded-xl border border-border bg-background/80 shadow-sm">
-                            <h4 className="text-lg font-semibold text-foreground mb-3 flex items-center">
-                              <svg
-                                className="w-5 h-5 mr-2 text-primary"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
+                            <div className="flex justify-between">
+                              <h4 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+                                <svg
+                                  className="w-5 h-5 mr-2 text-primary"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                  ></path>
+                                </svg>
+                                Video Summary
+                              </h4>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={exportToPdf}
+                                disabled={isSummarizing}
+                                className="flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200"
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                                ></path>
-                              </svg>
-                              Video Summary
-                            </h4>
+                                <File />
+                                Export to PDF
+                              </Button>
+                            </div>
                             <div className="prose dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
                               {videoSummary}
                             </div>
