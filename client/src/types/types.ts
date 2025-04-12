@@ -161,6 +161,7 @@ export interface Resource {
   description?: string;
   type: ResourceType;
   fileSize?: number;
+  extractedText?: string;
   originalFileName?: string;
   uploadedBy: string;
   courses: string[];
@@ -174,6 +175,7 @@ export interface Course {
   _id: string;
   title: string;
   description?: string;
+  icon?: string;
   creator: string; // User ID
   createdAt: Date;
 }

@@ -26,8 +26,25 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Assuming you use shadcn/ui Select
 import { Course } from "@/types/types";
 import { authApi, courseApi } from "@/api/auth";
+
+// Define available icons (emojis for simplicity)
+const availableIcons = [
+  { value: "📚", label: "Book" },
+  { value: "🧪", label: "Science" },
+  { value: "✏️", label: "Pencil" },
+  { value: "💻", label: "Computer" },
+  { value: "🎨", label: "Art" },
+  { value: "🎓", label: "Graduation" },
+];
 
 type SearchResult = {
   title: string;
@@ -53,7 +70,8 @@ export function DashboardPage() {
   const [newCourse, setNewCourse] = useState<{
     title: string;
     description: string;
-  }>({ title: "", description: "" });
+    icon?: string;
+  }>({ title: "", description: "", icon: "📚" }); // Default icon
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -90,7 +108,7 @@ export function DashboardPage() {
     try {
       const createdCourse = await courseApi.createCourse(newCourse);
       setCourses((prev) => [...prev, createdCourse]);
-      setNewCourse({ title: "", description: "" });
+      setNewCourse({ title: "", description: "", icon: "📚" });
       setIsDialogOpen(false);
     } catch (err) {
       setError("Failed to create course");
@@ -291,6 +309,28 @@ export function DashboardPage() {
                     className="col-span-3"
                   />
                 </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="icon" className="text-right">
+                    Icon
+                  </Label>
+                  <Select
+                    value={newCourse.icon}
+                    onValueChange={(value) =>
+                      setNewCourse({ ...newCourse, icon: value })
+                    }
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select an icon" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableIcons.map((icon) => (
+                        <SelectItem key={icon.value} value={icon.value}>
+                          {icon.value} {icon.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button
                   type="button"
                   onClick={handleAddCourse}
@@ -324,7 +364,7 @@ export function DashboardPage() {
                   className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[140px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
                   onClick={() => handleCourseClick(course)}
                 >
-                  <span className="text-2xl mb-2">📚</span>
+                  <span className="text-2xl mb-2">{course.icon || "📚"}</span>
                   <span className="font-medium text-center">
                     {course.title}
                   </span>

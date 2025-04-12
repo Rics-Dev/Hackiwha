@@ -20,6 +20,7 @@ import {
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { resourceApi } from "@/api/auth";
 import { Resource } from "@/types/types";
+import pdfToText from "react-pdftotext";
 
 // Mock data (unchanged)
 const tasks = [
@@ -30,7 +31,6 @@ const tasks = [
   { id: "5", title: "Complete chemistry lab report", completed: false },
 ];
 
-// Add this type definition near the top of the file
 type ChatMessage = {
   sender: "user" | "bot";
   text: string;
@@ -52,6 +52,8 @@ export function WorkspacePage() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -65,12 +67,31 @@ export function WorkspacePage() {
     fetchResources();
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+
+      if (selectedFile.type === "application/pdf") {
+        setIsExtracting(true);
+        try {
+          const text = await pdfToText(selectedFile);
+          setExtractedText(text);
+          if (!resourceTitle.trim()) {
+            setResourceTitle(selectedFile.name.replace(".pdf", ""));
+          }
+        } catch (error) {
+          console.error("Failed to extract text from PDF:", error);
+          setExtractedText(null);
+        } finally {
+          setIsExtracting(false);
+        }
+      } else {
+        setExtractedText(null);
+      }
     }
   };
-
   const uploadResource = async () => {
     if (!file || !resourceTitle.trim()) {
       alert("Please provide a title and select a file.");
@@ -81,6 +102,11 @@ export function WorkspacePage() {
       const formData = new FormData();
       formData.append("title", resourceTitle);
       formData.append("file", file);
+
+      if (extractedText && file.type === "application/pdf") {
+        formData.append("extractedText", extractedText);
+      }
+
       formData.append(
         "fileType",
         file.type.includes("pdf")
@@ -93,11 +119,29 @@ export function WorkspacePage() {
       setResources([...resources, newResource]);
       setFile(null);
       setResourceTitle("");
+      setExtractedText(null);
     } catch (error) {
       console.error("Failed to upload resource:", error);
       alert("Failed to upload resource.");
     } finally {
       setIsUploading(false);
+    }
+  };
+  const extractTextFromPdf = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      alert("Please select a PDF file first.");
+      return;
+    }
+
+    setIsExtracting(true);
+    try {
+      const text = await pdfToText(file);
+      setExtractedText(text);
+    } catch (error) {
+      console.error("Failed to extract text from PDF:", error);
+      alert("Failed to extract text from the PDF file.");
+    } finally {
+      setIsExtracting(false);
     }
   };
 
@@ -191,15 +235,22 @@ export function WorkspacePage() {
     try {
       const selectedDocs = resources
         .filter((r: any) => r.selected)
-        .map((r) => r.title);
-      const documentContext =
-        selectedDocs.length > 0
-          ? `Using the following documents: ${selectedDocs.join(
-              ", "
-            )}, please answer: ${chatInput}`
-          : chatInput;
+        .map((r) => ({
+          title: r.title,
+          text: r.extractedText || "No extracted text available",
+        }));
 
-      const result = await model.generateContent(documentContext);
+      let prompt = chatInput;
+
+      if (selectedDocs.length > 0) {
+        const docsContext = selectedDocs
+          .map((doc) => `Document: ${doc.title}\nContent: ${doc.text}`)
+          .join("\n\n");
+
+        prompt = `I want you to answer based on the following documents:\n\n${docsContext}\n\nQuestion: ${chatInput}`;
+      }
+
+      const result = await model.generateContent(prompt);
       const botMessage: ChatMessage = {
         sender: "bot",
         text: result.response.text(),
@@ -218,46 +269,38 @@ export function WorkspacePage() {
     setIsChatLoading(false);
   };
 
-  const sendChatMessage = async () => {
-    if (!chatInput.trim()) return;
+   const sendChatMessage = async () => {
+     if (!chatInput.trim()) return;
 
-    const userMessage: ChatMessage = { sender: "user", text: chatInput };
-    setChatMessages((prev) => [...prev, userMessage]);
-    setIsChatLoading(true);
+     const userMessage: ChatMessage = { sender: "user", text: chatInput };
+     setChatMessages((prev) => [...prev, userMessage]);
+     setIsChatLoading(true);
 
-    try {
-      if (resources.some(r => r.selected)) {
-        const selectedDocs = resources
-          .filter((r: any) => r.selected)
-          .map((r) => r.title);
-        const documentContext = `Using the following documents: ${selectedDocs.join(", ")}, please answer: ${chatInput}`;
-        
-        const result = await model.generateContent(documentContext);
-        const botMessage: ChatMessage = {
-          sender: "bot",
-          text: result.response.text(),
-        };
-        setChatMessages((prev) => [...prev, botMessage]);
-      } else {
-        const result = await model.generateContent(chatInput);
-        const botMessage: ChatMessage = {
-          sender: "bot",
-          text: result.response.text(),
-        };
-        setChatMessages((prev) => [...prev, botMessage]);
-      }
-    } catch (error) {
-      console.error("Error fetching Gemini response:", error);
-      const errorMessage: ChatMessage = {
-        sender: "bot",
-        text: "Sorry, something went wrong. Please try again.",
-      };
-      setChatMessages((prev) => [...prev, errorMessage]);
-    }
+     try {
+       if (resources.some((r) => r.selected)) {
+         // Use the more advanced document chat with extracted text
+         await sendDocumentChatMessage();
+         return;
+       } else {
+         const result = await model.generateContent(chatInput);
+         const botMessage: ChatMessage = {
+           sender: "bot",
+           text: result.response.text(),
+         };
+         setChatMessages((prev) => [...prev, botMessage]);
+       }
+     } catch (error) {
+       console.error("Error fetching Gemini response:", error);
+       const errorMessage: ChatMessage = {
+         sender: "bot",
+         text: "Sorry, something went wrong. Please try again.",
+       };
+       setChatMessages((prev) => [...prev, errorMessage]);
+     }
 
-    setChatInput("");
-    setIsChatLoading(false);
-  };
+     setChatInput("");
+     setIsChatLoading(false);
+   };
 
   const handleChatKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -434,9 +477,10 @@ export function WorkspacePage() {
 
             <div className="relative">
               <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 rounded-lg p-2 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
-                {resources.some(r => r.selected) && (
+                {resources.some((r) => r.selected) && (
                   <div className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-xs rounded-full">
-                    Chat with {resources.filter(r => r.selected).length} documents
+                    Chat with {resources.filter((r) => r.selected).length}{" "}
+                    documents
                   </div>
                 )}
                 <textarea

@@ -1,4 +1,3 @@
-// src/pages/dashboard/resources/index.tsx
 import { Button } from "@/components/ui/button";
 import {
   PlusCircle,
@@ -10,118 +9,13 @@ import {
   Video,
   Globe,
   Bookmark,
+  Upload,
 } from "lucide-react";
-import { useState } from "react";
-import { ResourceType } from "@/types/types";
+import { useState, useEffect } from "react";
+import { resourceApi } from "@/api/auth"; // Assuming this is the API client
+import { Resource } from "@/types/types";
 
-// Mock data for demonstration
-const resources = [
-  {
-    id: "1",
-    title: "Baccalaureate Mathematics Textbook",
-    description: "Official mathematics textbook for Baccalaureate preparation",
-    type: "Textbook",
-    subject: "Mathematics",
-    language: "Arabic",
-    downloadable: true,
-    size: "12.5 MB",
-    createdBy: "Ministry of Education",
-    createdAt: "2023-01-15T10:30:00Z",
-    tags: ["baccalaureate", "official", "mathematics"],
-  },
-  {
-    id: "2",
-    title: "Physics Past Exam (2022)",
-    description: "Official Baccalaureate physics exam from 2022 with solutions",
-    type: "Exam",
-    subject: "Physics",
-    language: "French",
-    downloadable: true,
-    size: "3.8 MB",
-    createdBy: "Ministry of Education",
-    createdAt: "2022-07-10T14:45:00Z",
-    tags: ["baccalaureate", "exam", "physics", "2022"],
-  },
-  {
-    id: "3",
-    title: "Arabic Grammar Fundamentals",
-    description: "Comprehensive guide to Arabic grammar rules and applications",
-    type: "Note",
-    subject: "Arabic",
-    language: "Arabic",
-    downloadable: true,
-    size: "2.2 MB",
-    createdBy: "Prof. Ahmed Taleb",
-    createdAt: "2023-03-05T09:15:00Z",
-    tags: ["grammar", "language", "notes"],
-  },
-  {
-    id: "4",
-    title: "Calculus Video Tutorial Series",
-    description: "Step-by-step video tutorials covering calculus concepts",
-    type: "Video",
-    subject: "Mathematics",
-    language: "French",
-    downloadable: false,
-    duration: "4:25:30",
-    createdBy: "Dr. Samira Hadj",
-    createdAt: "2023-02-20T11:00:00Z",
-    tags: ["calculus", "tutorial", "video"],
-  },
-  {
-    id: "5",
-    title: "BEM English Past Papers (2018-2022)",
-    description: "Collection of BEM English exams from the past 5 years",
-    type: "Exam",
-    subject: "English",
-    language: "English",
-    downloadable: true,
-    size: "8.6 MB",
-    createdBy: "Ministry of Education",
-    createdAt: "2022-09-15T13:20:00Z",
-    tags: ["bem", "exam", "english", "collection"],
-  },
-  {
-    id: "6",
-    title: "Chemistry Laboratory Guide",
-    description: "Practical guide for chemistry laboratory experiments",
-    type: "Textbook",
-    subject: "Chemistry",
-    language: "French",
-    downloadable: true,
-    size: "5.3 MB",
-    createdBy: "University of Algiers",
-    createdAt: "2023-04-10T15:45:00Z",
-    tags: ["chemistry", "laboratory", "practical"],
-  },
-  {
-    id: "7",
-    title: "Algerian History Timeline",
-    description: "Comprehensive timeline of Algerian history with key events",
-    type: "Note",
-    subject: "History",
-    language: "Arabic",
-    downloadable: true,
-    size: "1.8 MB",
-    createdBy: "Dr. Karim Zidane",
-    createdAt: "2023-03-25T10:30:00Z",
-    tags: ["history", "timeline", "algeria"],
-  },
-  {
-    id: "8",
-    title: "Programming Basics with Python",
-    description: "Introduction to programming concepts using Python",
-    type: "Video",
-    subject: "Computer Science",
-    language: "French",
-    downloadable: false,
-    duration: "3:10:45",
-    createdBy: "Tech Academy Algeria",
-    createdAt: "2023-05-05T14:15:00Z",
-    tags: ["programming", "python", "beginners"],
-  },
-];
-
+// Component for the Resources Page
 export function ResourcesPage() {
   const [filters, setFilters] = useState({
     type: "",
@@ -129,17 +23,107 @@ export function ResourcesPage() {
     language: "",
     downloadable: false,
   });
-
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [resourceTitle, setResourceTitle] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch resources on component mount
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedResources = await resourceApi.getResources();
+        setResources(fetchedResources);
+      } catch (error) {
+        console.error("Failed to fetch resources:", error);
+        alert("Failed to load resources.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchResources();
+  }, []);
+
+  // Handle file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // Handle resource upload
+  const uploadResource = async () => {
+    if (!file || !resourceTitle.trim()) {
+      alert("Please provide a title and select a file.");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", resourceTitle);
+      formData.append("file", file);
+      formData.append(
+        "fileType",
+        file.type.includes("pdf")
+          ? "pdf"
+          : file.type.includes("image")
+          ? "image"
+          : "other"
+      );
+      const newResource = await resourceApi.uploadResource(formData);
+      setResources([...resources, newResource]);
+      setFile(null);
+      setResourceTitle("");
+    } catch (error) {
+      console.error("Failed to upload resource:", error);
+      alert("Failed to upload resource.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle resource download
+  const downloadResource = async (resourceId: string) => {
+    try {
+      await resourceApi.downloadResource(resourceId);
+    } catch (error) {
+      console.error("Failed to download resource:", error);
+      alert("Failed to download resource.");
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Resource Library</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Upload Resource
-        </Button>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Resource title"
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            value={resourceTitle}
+            onChange={(e) => setResourceTitle(e.target.value)}
+          />
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="hidden"
+            id="file-upload"
+          />
+          <label
+            htmlFor="file-upload"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {file ? file.name : "Choose File"}
+          </label>
+          <Button onClick={uploadResource} disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Upload Resource"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
@@ -215,10 +199,22 @@ export function ResourcesPage() {
             </div>
           </div>
 
-          {viewMode === "grid" ? (
+          {isLoading ? (
+            <div className="text-center text-muted-foreground py-8">
+              Loading resources...
+            </div>
+          ) : resources.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              No resources found. Upload some to get started!
+            </div>
+          ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {resources.map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} />
+                <ResourceCard
+                  key={resource._id}
+                  resource={resource}
+                  onDownload={() => downloadResource(resource._id)}
+                />
               ))}
             </div>
           ) : (
@@ -241,7 +237,7 @@ export function ResourcesPage() {
                 </thead>
                 <tbody>
                   {resources.map((resource) => (
-                    <tr key={resource.id} className="border-t">
+                    <tr key={resource._id} className="border-t">
                       <td className="p-3">
                         <div className="flex items-center gap-3">
                           {getResourceIcon(resource.type)}
@@ -256,15 +252,13 @@ export function ResourcesPage() {
                       <td className="p-3 hidden md:table-cell">
                         {resource.type}
                       </td>
-                      <td className="p-3 hidden lg:table-cell">
-                        {resource.subject}
-                      </td>
-                      <td className="p-3 hidden lg:table-cell">
-                        {resource.language}
-                      </td>
                       <td className="p-3 text-right">
                         {resource.downloadable ? (
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => downloadResource(resource._id)}
+                          >
                             <Download className="h-4 w-4 mr-1" />
                             Download
                           </Button>
@@ -418,29 +412,18 @@ export function ResourcesPage() {
 }
 
 interface ResourceCardProps {
-  resource: {
-    id: string;
-    title: string;
-    description: string;
-    type: string;
-    subject: string;
-    language: string;
-    downloadable: boolean;
-    size?: string;
-    duration?: string;
-    createdBy: string;
-    createdAt: string;
-    tags: string[];
-  };
+  resource: Resource;
+  onDownload: () => void;
 }
 
-function ResourceCard({ resource }: ResourceCardProps) {
+function ResourceCard({ resource, onDownload }: ResourceCardProps) {
   return (
     <div className="border rounded-lg overflow-hidden bg-card hover:border-primary/50 transition-colors">
       <div className="h-32 bg-gradient-to-r from-primary/20 to-primary/5 flex items-center justify-center p-4">
         <div className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center">
           {getResourceIcon(resource.type, 24)}
         </div>
+        |
       </div>
       <div className="p-4 space-y-4">
         <div>
@@ -458,22 +441,9 @@ function ResourceCard({ resource }: ResourceCardProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs">
-          <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md">
-            <BookOpen className="h-3 w-3 text-muted-foreground" />
-            <span>{resource.subject}</span>
-          </div>
-          <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md">
-            <Globe className="h-3 w-3 text-muted-foreground" />
-            <span>{resource.language}</span>
-          </div>
-        </div>
 
         <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-xs text-muted-foreground">
-            {resource.downloadable ? resource.size : resource.duration}
-          </span>
-          <Button size="sm">
+          <Button size="sm" onClick={onDownload}>
             {resource.downloadable ? (
               <>
                 <Download className="mr-1 h-4 w-4" />
