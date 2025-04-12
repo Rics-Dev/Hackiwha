@@ -15,8 +15,11 @@ import {
   BarChart,
   Edit3,
   Send,
+  Upload,
 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { resourceApi } from "@/api/auth";
+import { Resource } from "@/types/types";
 
 // Mock data (unchanged)
 const tasks = [
@@ -27,32 +30,6 @@ const tasks = [
   { id: "5", title: "Complete chemistry lab report", completed: false },
 ];
 
-const documents = [
-  {
-    id: "1",
-    title: "Physics Notes",
-    type: "Document",
-    lastEdited: "2023-05-20T14:30:00Z",
-  },
-  {
-    id: "2",
-    title: "Math Problem Set",
-    type: "Spreadsheet",
-    lastEdited: "2023-05-22T10:15:00Z",
-  },
-  {
-    id: "3",
-    title: "History Essay Draft",
-    type: "Document",
-    lastEdited: "2023-05-24T16:45:00Z",
-  },
-  {
-    id: "4",
-    title: "Chemistry Lab Data",
-    type: "Spreadsheet",
-    lastEdited: "2023-05-18T11:30:00Z",
-  },
-];
 
 // Add this type definition near the top of the file
 type ChatMessage = {
@@ -69,13 +46,78 @@ export function WorkspacePage() {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [newTask, setNewTask] = useState("");
   const [taskList, setTaskList] = useState(tasks);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [resourceTitle, setResourceTitle] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const fetchedResources = await resourceApi.getResources();
+        setResources(fetchedResources);
+      } catch (error) {
+        console.error("Failed to fetch resources:", error);
+      }
+    };
+    fetchResources();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const uploadResource = async () => {
+    if (!file || !resourceTitle.trim()) {
+      alert("Please provide a title and select a file.");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", resourceTitle);
+      formData.append("file", file);
+      formData.append(
+        "fileType",
+        file.type.includes("pdf")
+          ? "pdf"
+          : file.type.includes("image")
+          ? "image"
+          : "other"
+      );
+      const newResource = await resourceApi.uploadResource(formData);
+      setResources([...resources, newResource]);
+      setFile(null);
+      setResourceTitle("");
+    } catch (error) {
+      console.error("Failed to upload resource:", error);
+      alert("Failed to upload resource.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const downloadResource = async (resourceId: string) => {
+    try {
+      await resourceApi.downloadResource(resourceId);
+    } catch (error) {
+      console.error("Failed to download resource:", error);
+      alert("Failed to download resource.");
+    }
+  };
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  generationConfig: {
+    maxOutputTokens: 2048,
+  },
+});
 
   const timerDurations = {
     pomodoro: 25 * 60,
@@ -488,16 +530,35 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">My Documents</h2>
             <div className="flex items-center gap-2">
-              <Button variant="outline">
-                <FileText className="mr-2 h-4 w-4" />
-                New Document
+              <input
+                type="text"
+                placeholder="Resource title"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                value={resourceTitle}
+                onChange={(e) => setResourceTitle(e.target.value)}
+              />
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+              />
+              <label
+                htmlFor="file-upload"
+                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {file ? file.name : "Choose File"}
+              </label>
+              <Button onClick={uploadResource} disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Upload Resource"}
               </Button>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documents.map((doc) => (
+            {resources.map((resource) => (
               <div
-                key={doc.id}
+                key={resource._id}
                 className="border rounded-lg p-4 bg-card hover:border-primary/50 transition-colors"
               >
                 <div className="flex items-start gap-3">
@@ -505,22 +566,36 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium">{doc.title}</h3>
-                    <p className="text-sm text-muted-foreground">{doc.type}</p>
+                    <h3 className="font-medium">{resource.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {resource.type}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Last edited:{" "}
-                      {new Date(doc.lastEdited).toLocaleDateString()}
+                      Uploaded:{" "}
+                      {new Date(resource.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Size: {(resource.fileSize || 0) / 1024} KB
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t flex justify-end">
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => downloadResource(resource._id)}
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Open
+                    Download
                   </Button>
                 </div>
               </div>
             ))}
+            {resources.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-8">
+                No documents yet. Upload some resources to get started!
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

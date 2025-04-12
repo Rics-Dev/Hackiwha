@@ -133,7 +133,6 @@ export interface ForumReply {
   createdAt: Date;
 }
 
-// AI-Powered Tools
 export interface GeneratedExercise {
   _id: string;
   subject: string;
@@ -148,9 +147,9 @@ export interface VideoSummary {
   _id: string;
   videoUrl: string;
   title: string;
-  duration: number; // in seconds
+  duration: number; 
   keyPoints: string[];
-  timestamps: Record<string, number>; // key point -> timestamp in seconds
+  timestamps: Record<string, number>; 
   language: Language;
 }
 
@@ -161,9 +160,10 @@ export interface Resource {
   title: string;
   description?: string;
   type: ResourceType;
-  url: string; 
-  uploadedBy: string; 
-  courses: string[]; 
+  fileSize?: number;
+  originalFileName?: string;
+  uploadedBy: string;
+  courses: string[];
   downloadable: boolean;
   tags?: string[];
   createdAt: Date;

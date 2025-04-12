@@ -2,6 +2,7 @@ import {
   ApiResponse,
   Course,
   Language,
+  Resource,
   UserProfile,
   UserRole,
 } from "@/types/types";
@@ -163,5 +164,68 @@ export const courseApi = {
     });
     const data = await handleResponse<{ courses: Course[] }>(response);
     return data.courses;
+  },
+};
+
+
+export const resourceApi = {
+  uploadResource: async (formData: FormData): Promise<Resource> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(`${BASE_URL}/resources`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData, 
+    });
+    const data = await handleResponse<{ resource: Resource }>(response);
+    return data.resource;
+  },
+
+  getResources: async (): Promise<Resource[]> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(`${BASE_URL}/resources`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await handleResponse<{ resources: Resource[] }>(response);
+    return data.resources;
+  },
+
+  downloadResource: async (resourceId: string): Promise<void> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(
+      `${BASE_URL}/resources/${resourceId}/download`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to download resource");
+    }
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("Content-Disposition");
+    const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
+    const fileName = fileNameMatch ? fileNameMatch[1] : "downloaded_file";
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

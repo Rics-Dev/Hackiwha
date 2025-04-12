@@ -8,14 +8,20 @@ const resourceSchema = new mongoose.Schema(
       trim: true,
       maxLength: 200,
     },
-    fileUrl: {
-      type: String,
-      required: [true, "File URL is required"],
+    fileData: {
+      type: Buffer, 
+      required: [true, "File data is required"],
     },
     fileType: {
       type: String,
       enum: ["pdf", "image", "video", "other"],
       default: "other",
+    },
+    fileSize: {
+      type: Number,
+    },
+    originalFileName: {
+      type: String,
     },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
