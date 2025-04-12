@@ -11,10 +11,7 @@ import {
   Pause,
   RotateCcw,
   ExternalLink,
-  MessageSquare,
   BarChart,
-  Edit3,
-  Send,
   Upload,
 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";

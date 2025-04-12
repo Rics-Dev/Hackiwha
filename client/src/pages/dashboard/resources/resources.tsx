@@ -1,19 +1,17 @@
 import { Button } from "@/components/ui/button";
 import {
-  PlusCircle,
   Search,
   Filter,
   Download,
   BookOpen,
   FileText,
   Video,
-  Globe,
   Bookmark,
   Upload,
   Share2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { authApi, resourceApi } from "@/api/api";
+import { resourceApi } from "@/api/api";
 import { Resource, UserProfile } from "@/types/types";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

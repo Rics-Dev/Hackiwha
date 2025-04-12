@@ -43,7 +43,7 @@ const commonSidebarItems: SidebarItem[] = [
     icon: <Users size={20} />,
   },
   {
-    label: "AI Tools",
+    label: "Exercises",
     href: "/dashboard/ai-tools",
     icon: <Brain size={20} />,
   },

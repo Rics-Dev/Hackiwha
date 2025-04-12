@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"; 
 import { Course } from "@/types/types";
-import { authApi, courseApi } from "@/api/api";
+import {  courseApi } from "@/api/api";
 import { jsPDF } from "jspdf";
 
 const availableIcons = [
