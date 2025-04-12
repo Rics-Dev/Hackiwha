@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
+const classroomRoutes = require('./routes/classroomRoutes');
 
 dotenv.config();
 
@@ -18,5 +19,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/classrooms", classroomRoutes);
 
 module.exports = app;

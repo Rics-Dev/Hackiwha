@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import "@tldraw/tldraw/tldraw.css";
 import { Tldraw } from "@tldraw/tldraw";
+import stars from "@/assets/stars.svg";
 import {
   CalendarClock,
   Users,
@@ -32,11 +33,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Assuming you use shadcn/ui Select
+} from "@/components/ui/select"; 
 import { Course } from "@/types/types";
 import { authApi, courseApi } from "@/api/api";
 
-// Define available icons (emojis for simplicity)
 const availableIcons = [
   { value: "📚", label: "Book" },
   { value: "🧪", label: "Science" },
@@ -45,6 +45,74 @@ const availableIcons = [
   { value: "🎨", label: "Art" },
   { value: "🎓", label: "Graduation" },
 ];
+
+const predefinedCourses = [
+  {
+    title: "Analyse Mathématique",
+    description: "Étude des fonctions, des suites, des limites et des dérivées.",
+    icon: "📐",
+    url1: "https://www.youtube.com/watch?v=agI-SDrMxkc",
+    url2: "https://www.youtube.com/watch?v=OYuZoX35_sw",
+    url3: "https://www.youtube.com/watch?v=ctW9QTPBtq8",
+    url4: "https://www.youtube.com/watch?v=0rKomLMvH8w",
+  },
+  {
+    title: "Probabilités et Statistiques",
+    description: "Introduction aux concepts de probabilité, de variables aléatoires et d'analyse statistique.",
+    icon: "📊",
+    url1: "https://www.youtube.com/watch?v=UkCQqsIMZPo",
+    url2: "https://www.youtube.com/watch?v=SqC4Fra91ww",
+    url3: "https://www.youtube.com/watch?v=4-KQN655XkY",
+    url4: "https://www.youtube.com/watch?v=Ilx-kK5FEDQ",
+  },
+  {
+    title: "Réseaux 1",
+    description: "Introduction aux réseaux informatiques, protocoles de communication et topologies.",
+    icon: "🌐",
+    url1: "https://www.youtube.com/watch?v=3QhU9jd03a0",
+    url2: "https://www.youtube.com/watch?v=qiQR5rTSshw",
+    url3: "https://www.youtube.com/watch?v=VwN91x5i25g",
+    url4: "https://www.youtube.com/watch?v=IPvYjXCsTg8",
+  },
+  {
+    title: "Algorithmique 1",
+    description: "Apprentissage des bases de la programmation et des structures algorithmiques.",
+    icon: "💻",
+    url1: "https://www.youtube.com/watch?v=7eh4d6sabA0",
+    url2: "https://www.youtube.com/watch?v=OSbUA5Q9Cec",
+    url3: "https://www.youtube.com/watch?v=wUSDVGivd-8",
+    url4: "https://www.youtube.com/watch?v=dAkZTYgPBsw",
+  },
+  {
+    title: "Électricité",
+    description: "Étude des circuits électriques, lois fondamentales et applications pratiques.",
+    icon: "⚡",
+    url1: "https://www.youtube.com/watch?v=3QhU9jd03a0",
+    url2: "https://www.youtube.com/watch?v=qiQR5rTSshw",
+    url3: "https://www.youtube.com/watch?v=VwN91x5i25g",
+    url4: "https://www.youtube.com/watch?v=IPvYjXCsTg8",
+  },
+  {
+    title: "Systèmes d'Exploitation",
+    description: "Fonctionnement des systèmes d'exploitation, gestion des processus et mémoire.",
+    icon: "🖥️",
+    url1: "https://www.youtube.com/watch?v=26QPDBe-NB8",
+    url2: "https://www.youtube.com/watch?v=5XgBd6rjuDQ",
+    url3: "https://www.youtube.com/watch?v=GxT1kU3Yq2A",
+    url4: "https://www.youtube.com/watch?v=0nQe6y3n2t8",
+  },
+  {
+    title: "Bases de Données",
+    description: "Concepts fondamentaux des bases de données relationnelles et langage SQL.",
+    icon: "🗄️",
+    url1: "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+    url2: "https://www.youtube.com/watch?v=7S_tz1z_5bA",
+    url3: "https://www.youtube.com/watch?v=9Pzj7Aj25lw",
+    url4: "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+  },
+];
+
+
 
 type SearchResult = {
   title: string;
@@ -77,27 +145,68 @@ export function DashboardPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const [videoSummary, setVideoSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  
 
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedCourses = await courseApi.getMyCourses();
-        setCourses(fetchedCourses);
-      } catch (err) {
-        setError("Failed to fetch courses");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+  const generateVideoSummary = async (videoUrl: string) => {
+    setIsSummarizing(true);
+    setVideoSummary(null);
+
+    try {
+      const videoId = getYouTubeVideoId(videoUrl);
+      if (!videoId) {
+        throw new Error("Invalid YouTube URL");
       }
-    };
-    fetchCourses();
-  }, []);
+
+      const prompt = `
+      Summarize this YouTube video with ID ${videoId} about ${
+        selectedCourse?.title || "this topic"
+      }.
+      Provide a concise summary that captures the key points and main concepts.
+      Format the summary in bullet points for key concepts, don't mention the video ID.
+    `;
+
+      const result = await model.generateContent(prompt);
+      const summaryText = result.response.text();
+      setVideoSummary(summaryText);
+    } catch (error) {
+      console.error("Error generating video summary:", error);
+      setVideoSummary("Failed to generate summary. Please try again.");
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+  
+
+  // useEffect(() => {
+  //   const fetchCourses = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const fetchedCourses = await courseApi.getMyCourses();
+  //       setCourses(fetchedCourses);
+  //     } catch (err) {
+  //       setError("Failed to fetch courses");
+  //       console.error(err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchCourses();
+  // }, []);
+
+  const getYouTubeVideoId = (url: string): string | null => {
+    const regex =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
   const handleAddCourse = async () => {
     if (!newCourse.title) {
@@ -128,14 +237,13 @@ export function DashboardPage() {
         Find educational resources for a course on "${
           course.title
         }" (description: ${course.description || "N/A"}).
-        Provide a mix of YouTube videos and relevant articles or learning resources.
+        Provide some relevant articles or learning resources.
         Format the response as a JSON array with objects containing:
         {
           "title": "Title of the resource",
           "url": "URL to the resource",
           "type": "video" or "article" or "course",
           "source": "Source website or platform",
-          "thumbnail": "URL to thumbnail image" (only for videos)
         }
         Limit to 6 high-quality results total.
       `;
@@ -232,7 +340,8 @@ export function DashboardPage() {
     }
   }, [selectedCourse]);
 
-  const handleCourseClick = (course: Course) => {
+  const handleCourseClick = (course: any) => {
+    setSelectedVideoUrl(null);
     setSelectedCourse(course);
     setIsExpanded(false);
   };
@@ -354,13 +463,12 @@ export function DashboardPage() {
             </div>
           ) : error ? (
             <p className="text-red-500">{error}</p>
-          ) : courses.length > 0 ? (
+          ) : predefinedCourses.length > 0 ? (
             <div className="flex space-x-4 pb-4 overflow-x-auto max-w-5xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-              {courses.map((course) => (
+              {predefinedCourses.map((course) => (
                 <Button
                   variant="outline"
                   size="sm"
-                  key={course._id}
                   className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[140px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
                   onClick={() => handleCourseClick(course)}
                 >
@@ -440,78 +548,179 @@ export function DashboardPage() {
                     </div>
                   </div>
                 ) : searchError ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="text-center max-w-md">
-                      <p className="text-red-500 mb-2">{searchError}</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => searchForCourseContent(selectedCourse)}
-                      >
-                        Try Again
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Videos Section */}
-                    <div>
-                      <h3 className="text-lg font-medium mb-3">
-                        Recommended Videos
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {searchResults
-                          .filter((result) => result.type === "video")
-                          .map((video, index) => (
-                            <a
+                  // <div className="h-full flex items-center justify-center">
+                  //   <div className="text-center max-w-md">
+                  //     <p className="text-red-500 mb-2">{searchError}</p>
+                  //     <Button
+                  //       variant="outline"
+                  //       onClick={() => searchForCourseContent(selectedCourse)}
+                  //     >
+                  //       Try Again
+                  //     </Button>
+                  //   </div>
+                  // </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                      selectedCourse.url1,
+                      selectedCourse.url2,
+                      selectedCourse.url3,
+                      selectedCourse.url4,
+                    ]
+                      .filter((url): url is string => !!url)
+                      .map((url, index) => {
+                        const videoId = getYouTubeVideoId(url);
+                        return (
+                          videoId && (
+                            <button
                               key={index}
-                              href={video.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex flex-col rounded-lg border border-border overflow-hidden hover:border-primary transition-colors"
+                              onClick={() => setSelectedVideoUrl(url)}
+                              className="flex flex-col rounded-lg border border-border overflow-hidden hover:border-primary transition-colors text-left"
                             >
                               <div className="h-32 bg-muted flex items-center justify-center relative">
-                                {video.thumbnail ? (
-                                  <img
-                                    src={video.thumbnail}
-                                    alt={video.title}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="flex items-center justify-center w-full h-full bg-accent/30">
-                                    <svg
-                                      className="w-12 h-12 text-muted-foreground"
-                                      fill="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                                    </svg>
-                                  </div>
-                                )}
+                                <img
+                                  src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                                  alt={`Video ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
                                 <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                                   YouTube
                                 </div>
                               </div>
                               <div className="p-3">
                                 <h4 className="font-medium line-clamp-2">
-                                  {video.title}
+                                  {selectedCourse.title} - Video {index + 1}
                                 </h4>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {video.source}
+                                  YouTube
                                 </p>
                               </div>
-                            </a>
-                          ))}
-                        {searchResults.filter(
-                          (result) => result.type === "video"
-                        ).length === 0 && (
-                          <p className="text-muted-foreground col-span-2">
-                            No video resources found.
-                          </p>
+                            </button>
+                          )
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {selectedVideoUrl && (
+                      <div className="mb-6">
+                        {videoSummary && (
+                          <div className="mt-6 mb-6 p-6 rounded-xl border border-border bg-background/80 shadow-sm">
+                            <h4 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+                              <svg
+                                className="w-5 h-5 mr-2 text-primary"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                ></path>
+                              </svg>
+                              Video Summary
+                            </h4>
+                            <div className="prose dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
+                              {videoSummary}
+                            </div>
+                          </div>
                         )}
+                        <div className="flex justify-between">
+                          <h3 className="text-lg font-medium mb-3">
+                            Now Playing
+                          </h3>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() =>
+                              generateVideoSummary(selectedVideoUrl)
+                            }
+                            disabled={isSummarizing}
+                            className="flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200"
+                          >
+                            {isSummarizing ? (
+                              <Loader2 className="h-4 w-4 animate-spin text-white" />
+                            ) : (
+                              <img
+                                src={stars}
+                                alt="summarize"
+                                className="h-4 w-4 text-white"
+                              />
+                            )}
+                            <span className="font-medium">
+                              {isSummarizing
+                                ? "Summarizing..."
+                                : "AI Summarize"}
+                            </span>
+                          </Button>
+                        </div>
+                        <div
+                          className="relative w-full"
+                          style={{
+                            paddingBottom: "56.25%" /* 16:9 aspect ratio */,
+                          }}
+                        >
+                          <iframe
+                            className="absolute top-0 left-0 w-full h-full rounded-lg"
+                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(
+                              selectedVideoUrl
+                            )}`}
+                            title="YouTube video player"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">
+                        Recommended Videos
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                          selectedCourse.url1,
+                          selectedCourse.url2,
+                          selectedCourse.url3,
+                          selectedCourse.url4,
+                        ]
+                          .filter((url): url is string => !!url)
+                          .map((url, index) => {
+                            const videoId = getYouTubeVideoId(url);
+                            return (
+                              videoId && (
+                                <button
+                                  key={index}
+                                  onClick={() => setSelectedVideoUrl(url)}
+                                  className="flex flex-col rounded-lg border border-border overflow-hidden hover:border-primary transition-colors text-left"
+                                >
+                                  <div className="h-32 bg-muted flex items-center justify-center relative">
+                                    <img
+                                      src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                                      alt={`Video ${index + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                      YouTube
+                                    </div>
+                                  </div>
+                                  <div className="p-3">
+                                    <h4 className="font-medium line-clamp-2">
+                                      {selectedCourse.title} - Video {index + 1}
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      YouTube
+                                    </p>
+                                  </div>
+                                </button>
+                              )
+                            );
+                          })}
                       </div>
                     </div>
 
-                    {/* Articles and Other Resources Section */}
                     <div>
                       <h3 className="text-lg font-medium mb-3">
                         Learning Resources

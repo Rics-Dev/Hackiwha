@@ -8,7 +8,7 @@ import {
 import { AuthProvider, useAuth } from "./contexts/auth-context";
 import { Layout } from "@/layout.tsx";
 import { DashboardLayout } from "@/components/layout/dashboard-layout.tsx";
-import { ClassroomsPage } from "@/pages/dashboard/classrooms/index.tsx";
+import { ClassroomsPage } from "@/pages/dashboard/classrooms/classrooms";
 import { StudyGroupsPage } from "@/pages/dashboard/study-groups/index.tsx";
 import { ResourcesPage } from "@/pages/dashboard/resources/resources";
 import { WorkspacePage } from "@/pages/dashboard/workspace/workspace";
