@@ -179,7 +179,7 @@ export const resourceApi = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: formData, 
+      body: formData,
     });
     const data = await handleResponse<{ resource: Resource }>(response);
     return data.resource;
@@ -227,5 +227,25 @@ export const resourceApi = {
     a.click();
     a.remove();
     window.URL.revokeObjectURL(url);
+  },
+
+  shareResource: async (
+    resourceId: string,
+    email: string
+  ): Promise<Resource> => {
+    const token = authApi.getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+    const response = await fetch(`${BASE_URL}/resources/share`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ resourceId, email }),
+    });
+    const data = await handleResponse<{ resource: Resource }>(response);
+    return data.resource;
   },
 };

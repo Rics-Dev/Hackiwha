@@ -18,7 +18,7 @@ import {
   Upload,
 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { resourceApi } from "@/api/auth";
+import { resourceApi } from "@/api/api";
 import { Resource } from "@/types/types";
 import pdfToText from "react-pdftotext";
 
@@ -66,7 +66,6 @@ export function WorkspacePage() {
     };
     fetchResources();
   }, []);
-
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -269,38 +268,38 @@ export function WorkspacePage() {
     setIsChatLoading(false);
   };
 
-   const sendChatMessage = async () => {
-     if (!chatInput.trim()) return;
+  const sendChatMessage = async () => {
+    if (!chatInput.trim()) return;
 
-     const userMessage: ChatMessage = { sender: "user", text: chatInput };
-     setChatMessages((prev) => [...prev, userMessage]);
-     setIsChatLoading(true);
+    const userMessage: ChatMessage = { sender: "user", text: chatInput };
+    setChatMessages((prev) => [...prev, userMessage]);
+    setIsChatLoading(true);
 
-     try {
-       if (resources.some((r) => r.selected)) {
-         // Use the more advanced document chat with extracted text
-         await sendDocumentChatMessage();
-         return;
-       } else {
-         const result = await model.generateContent(chatInput);
-         const botMessage: ChatMessage = {
-           sender: "bot",
-           text: result.response.text(),
-         };
-         setChatMessages((prev) => [...prev, botMessage]);
-       }
-     } catch (error) {
-       console.error("Error fetching Gemini response:", error);
-       const errorMessage: ChatMessage = {
-         sender: "bot",
-         text: "Sorry, something went wrong. Please try again.",
-       };
-       setChatMessages((prev) => [...prev, errorMessage]);
-     }
+    try {
+      if (resources.some((r) => r.selected)) {
+        // Use the more advanced document chat with extracted text
+        await sendDocumentChatMessage();
+        return;
+      } else {
+        const result = await model.generateContent(chatInput);
+        const botMessage: ChatMessage = {
+          sender: "bot",
+          text: result.response.text(),
+        };
+        setChatMessages((prev) => [...prev, botMessage]);
+      }
+    } catch (error) {
+      console.error("Error fetching Gemini response:", error);
+      const errorMessage: ChatMessage = {
+        sender: "bot",
+        text: "Sorry, something went wrong. Please try again.",
+      };
+      setChatMessages((prev) => [...prev, errorMessage]);
+    }
 
-     setChatInput("");
-     setIsChatLoading(false);
-   };
+    setChatInput("");
+    setIsChatLoading(false);
+  };
 
   const handleChatKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

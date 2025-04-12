@@ -9,7 +9,7 @@ const resourceSchema = new mongoose.Schema(
       maxLength: 200,
     },
     fileData: {
-      type: Buffer, 
+      type: Buffer,
       required: [true, "File data is required"],
     },
     fileType: {
@@ -27,6 +27,16 @@ const resourceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Uploader is required"],
+    },
+    sharedWith: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    sharedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     courses: [
       {

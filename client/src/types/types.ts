@@ -163,7 +163,9 @@ export interface Resource {
   fileSize?: number;
   extractedText?: string;
   originalFileName?: string;
-  uploadedBy: string;
+  uploadedBy: any;
+  sharedWith?: string[];
+  sharedBy?: string | UserProfile;
   courses: string[];
   downloadable: boolean;
   selected?: boolean;

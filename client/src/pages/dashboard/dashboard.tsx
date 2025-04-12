@@ -34,7 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Assuming you use shadcn/ui Select
 import { Course } from "@/types/types";
-import { authApi, courseApi } from "@/api/auth";
+import { authApi, courseApi } from "@/api/api";
 
 // Define available icons (emojis for simplicity)
 const availableIcons = [

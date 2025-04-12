@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { authApi } from "@/api/auth";
+import { authApi } from "@/api/api";
 import { toast } from "sonner";
 import { Language, UserRole } from "@/types/types";
 import { Eye, EyeOff } from "lucide-react";
