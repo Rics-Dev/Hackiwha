@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/auth";
 import { toast } from "sonner";
 import { Language, UserRole } from "@/types/types";
-import { AuthRedirect } from "@/components/auth/auth-redirect";
+import { Eye, EyeOff } from "lucide-react";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ export function RegisterPage() {
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,66 +57,82 @@ export function RegisterPage() {
     }));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (step === 2) {
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
+    if (step === 2) {
+      if (formData.password !== formData.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+
+      const passwordRegex =
+        /^(?=[^a-z]*[a-z])(?=[^A-Z]*[A-Z])(?=\D*\d)(?=[^@$!%*?&]*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        toast.error(
+          "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character (@$!%*?&)"
+        );
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const userData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          ...(role && { role }),
+        };
+
+        const response = await authApi.register(userData);
+
+        authApi.setAuthToken(response.token);
+
+        login(response.user, response.token);
+        setStep(3);
+      } catch (error: any) {
+        console.error("Registration error:", error);
+        toast.error(error.message || "Registration failed. Please try again.");
+        console.error("Registration error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (step === 3) {
+      setIsLoading(true);
+
+      try {
+        const updatedUser = await authApi.updateProfile({
+          location: profileData.location,
+          preferredLanguage: profileData.preferredLanguage as Language,
+          bio: profileData.bio,
+          skills: profileData.skills,
+          studyLevel: profileData.studyLevel,
+          credentials: profileData.credentials,
+        });
+
+        // Update the user in AuthContext
+        const token = authApi.getAuthToken();
+        if (token) {
+          login(updatedUser, token);
+        } else {
+          throw new Error("No authentication token available");
+        }
+
+        toast.success("Profile updated successfully!");
+        navigate("/dashboard");
+      } catch (error: any) {
+        toast.error(
+          error.message || "Profile update failed. Please try again."
+        );
+        console.error("Profile update error:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-
-    setIsLoading(true);
-
-    try {
-
-  const userData = {
-    name: formData.name,
-    email: formData.email,
-    password: formData.password,
-    ...(role && { role }),
   };
 
-  const response = await authApi.register(userData);
-
-      authApi.setAuthToken(response.token);
-
-      login(response.user, response.token);
-      setStep(3);
-    } catch (error: any) {
-      console.error("Registration error:", error);
-toast.error(error.message || "Registration failed. Please try again.");
-console.error("Registration error:", error);
-    } finally {
-      setIsLoading(false);
-    }
- } else if (step === 3) {
-    setIsLoading(true);
-
-    try {
-      await authApi.updateProfile({
-        location: profileData.location,
-        preferredLanguage: profileData.preferredLanguage as Language,
-        bio: profileData.bio,
-        skills: profileData.skills,
-        studyLevel: profileData.studyLevel,
-        credentials: profileData.credentials,
-      });
-
-      toast.success("Profile updated successfully!");
-      navigate("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Profile update failed. Please try again.");
-      console.error("Profile update error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-};
-
   return (
-    <AuthRedirect>
-
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-12">
         <div className="w-full max-w-md space-y-8 bg-background p-8 rounded-xl border border-border shadow-lg">
@@ -132,8 +149,8 @@ console.error("Registration error:", error);
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-primary">Select your role</p>
-             Trail of Bits Security
-             </div>
+                Trail of Bits Security
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <RoleCard
@@ -164,9 +181,7 @@ console.error("Registration error:", error);
           {step === 2 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <p className="font-medium text-primary">
-                  Create your account
-                </p>
+                <p className="font-medium text-primary">Create your account</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -214,16 +229,29 @@ console.error("Registration error:", error);
                   >
                     Password
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                    placeholder="••••••••"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label
@@ -232,16 +260,29 @@ console.error("Registration error:", error);
                   >
                     Confirm Password
                   </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                    placeholder="••••••••"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex gap-4">
@@ -380,12 +421,12 @@ console.error("Registration error:", error);
                         <option value="middle">Middle School</option>
                         <option value="secondary">Secondary School</option>
                         <option value="university">University</option>
+                        <option value="postgraduate">Postgraduate</option>
+                        <option value="professional">Professional</option>
                       </select>
                     </div>
                     <div>
-                      <label
-                        className="block text-sm font-medium mb-1 text-gray-700"
-                      >
+                      <label className="block text-sm font-medium mb-1 text-gray-700">
                         Skills (Select your subjects of interest)
                       </label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
@@ -422,9 +463,7 @@ console.error("Registration error:", error);
                 {role === "mentor" && (
                   <>
                     <div>
-                      <label
-                        className="block text-sm font-medium mb-1 text-gray-700"
-                      >
+                      <label className="block text-sm font-medium mb-1 text-gray-700">
                         Teaching Skills
                       </label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
@@ -525,8 +564,6 @@ console.error("Registration error:", error);
         </div>
       </div>
     </div>
-
-    </AuthRedirect>
   );
 }
 

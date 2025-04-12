@@ -19,6 +19,7 @@ import { lazy, Suspense } from "react";
 import { LandingPage } from "./pages/landing/landing";
 import { DashboardPage } from "./pages/dashboard/dashboard";
 import { Toaster } from "sonner";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const ClassroomPage = lazy(
   () => import("@/pages/dashboard/classrooms/[id].tsx")
@@ -71,9 +72,11 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Toaster position="top-center" richColors />
-      <RouterProvider router={router} />
-    </AuthProvider>
+    // <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || ""}>
+      <AuthProvider>
+        <Toaster position="top-center" richColors />
+        <RouterProvider router={router} />
+      </AuthProvider>
+    // </GoogleOAuthProvider>
   );
 }

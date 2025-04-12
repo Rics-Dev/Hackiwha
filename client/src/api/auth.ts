@@ -24,15 +24,17 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
     } catch (parseError) {
       console.warn("Failed to parse error JSON", parseError);
     }
-    throw new Error(errorMessage); 
+    throw new Error(errorMessage);
   }
 
   const data = (await response.json()) as ApiResponse<T>;
-
-  if (!data.success || !data.data) {
+  if (!data.success) {
     throw new Error(data.error?.message || "Operation failed");
   }
 
+  if (!data.data) {
+    throw new Error('Response data is undefined');
+  }
   return data.data;
 };
 
@@ -107,7 +109,8 @@ export const authApi = {
       },
       body: JSON.stringify(profileData),
     });
-    return handleResponse<UserProfile>(response);
+    const data = await handleResponse<{ user: UserProfile }>(response);
+    return data.user;
   },
 };
 

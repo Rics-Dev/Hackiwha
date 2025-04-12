@@ -1,23 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
-import drive from "@/assets/google_drive.svg";
-import chatgpt from "@/assets/chatgpt-6.svg";
-import calendar from "@/assets/g-calendar.svg";
-import gmail from "@/assets/gmail.svg";
-import google from "@/assets/google.svg";
-import youtube from "@/assets/youtube.svg";
-import docs from "@/assets/docs.svg";
-import sheet from "@/assets/sheets.svg";
-import forms from "@/assets/forms.svg";
 import "@tldraw/tldraw/tldraw.css";
 import { Tldraw } from "@tldraw/tldraw";
 import {
-  Briefcase,
   CalendarClock,
-  BookOpen,
-  TrendingUp,
-  ExternalLink,
   Users,
   MessageSquare,
   GraduationCap,
@@ -26,45 +13,152 @@ import {
   BookOpenText,
   FileBadge,
 } from "lucide-react";
-import { useTheme } from "@/components/theme-provider"; // Import useTheme
+import { useTheme } from "@/components/theme-provider";
 
-interface AppItem {
-  name: string;
-  icon: string;
+interface CourseItem {
+  id: string;
+  title: string;
+  subject: string;
+  level: string;
+  description: string;
   url: string;
+  icon?: string;
+  progress?: number;
+}
+
+interface DashboardCard {
+  title: string;
+  value: string;
+  description: string | React.ReactNode;
+  icon: React.ReactNode;
 }
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
   const userRole = user?.role || "Student";
+  const userStudyLevel = user?.studyLevel || "secondary";
 
-  const apps: AppItem[] = [
-    { name: "Drive", icon: drive, url: "https://drive.google.com" },
-    { name: "ChatGPT", icon: chatgpt, url: "https://chat.openai.com" },
-    { name: "Calendar", icon: calendar, url: "https://calendar.google.com" },
-    { name: "Gmail", icon: gmail, url: "https://mail.google.com" },
-    { name: "Google", icon: google, url: "https://www.google.com" },
-    { name: "Youtube", icon: youtube, url: "https://www.youtube.com/embed" },
+  const allCourses: CourseItem[] = [
     {
-      name: "Docs",
-      icon: docs,
-      url: "https://docs.google.com/document/d/e/pub?embedded=true",
+      id: "1",
+      title: "Algebra Basics",
+      subject: "Mathematics",
+      level: "university",
+      description: "Introduction to algebraic expressions and equations.",
+      url: "https://example.com/course/algebra-basics",
+      icon: "📐",
+      progress: 75,
     },
-    { name: "Sheet", icon: sheet, url: "https://sheets.google.com" },
-    { name: "Forms", icon: forms, url: "https://forms.google.com" },
+    {
+      id: "2",
+      title: "World History",
+      subject: "History",
+      level: "university",
+      description: "Explore key events in global history.",
+      url: "https://example.com/course/world-history",
+      icon: "🏛️",
+      progress: 20,
+    },
+    {
+      id: "3",
+      title: "Organic Chemistry",
+      subject: "Chemistry",
+      level: "university",
+      description: "Study the structure and reactions of organic compounds.",
+      url: "https://example.com/course/organic-chemistry",
+      icon: "🧪",
+      progress: 0,
+    },
+    {
+      id: "4",
+      title: "Basic Arithmetic",
+      subject: "Mathematics",
+      level: "university",
+      description: "Learn addition, subtraction, and multiplication.",
+      url: "https://example.com/course/basic-arithmetic",
+      icon: "➕",
+      progress: 90,
+    },
   ];
 
-  const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
+  const courses = allCourses.filter(
+    (course) => course.level === userStudyLevel
+  );
+
+  const studentCards: DashboardCard[] = [
+    {
+      title: "Upcoming Deadlines",
+      value: "3",
+      description: "Next: Math Exam (2 days)",
+      icon: <Calendar className="h-8 w-8" />,
+    },
+    {
+      title: "Study Time",
+      value: "7.5h",
+      description: (
+        <>
+          <span className="mr-1 bg-green-100 text-green-800 px-1 py-1 rounded dark:bg-green-900 dark:text-green-200">
+            +2.3h
+          </span>
+          From last week
+        </>
+      ),
+      icon: <Clock className="h-8 w-8" />,
+    },
+    {
+      title: "Resources",
+      value: "28",
+      description: "+5 new this week",
+      icon: <BookOpenText className="h-8 w-8" />,
+    },
+    {
+      title: "Knowledge Points",
+      value: "253",
+      description: "You achieved level 3!",
+      icon: <FileBadge className="h-8 w-8" />,
+    },
+  ];
+
+  const mentorCards: DashboardCard[] = [
+    {
+      title: "Active Mentees",
+      value: "12",
+      description: "2 new this month",
+      icon: <Users className="h-8 w-8" />,
+    },
+    {
+      title: "Scheduled Sessions",
+      value: "5",
+      description: "Next: Physics Review (Tomorrow)",
+      icon: <CalendarClock className="h-8 w-8" />,
+    },
+    {
+      title: "Feedback Received",
+      value: "8",
+      description: "+3 this week",
+      icon: <MessageSquare className="h-8 w-8" />,
+    },
+    {
+      title: "Mentor Level",
+      value: "Gold",
+      description: "Earned for 50+ sessions",
+      icon: <GraduationCap className="h-8 w-8" />,
+    },
+  ];
+
+  const dashboardCards = userRole === "mentor" ? mentorCards : studentCards;
+
+  const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleAppClick = (app: AppItem) => {
-    setSelectedApp(app);
+  const handleCourseClick = (course: CourseItem) => {
+    setSelectedCourse(course);
     setIsExpanded(false);
   };
 
-  const handleCloseApp = () => {
-    setSelectedApp(null);
+  const handleCloseCourse = () => {
+    setSelectedCourse(null);
     setIsExpanded(false);
   };
 
@@ -73,88 +167,65 @@ export function DashboardPage() {
   };
 
   const handleOpenInNewTab = () => {
-    if (selectedApp) {
-      window.open(selectedApp.url, "_blank", "noopener,noreferrer");
+    if (selectedCourse) {
+      window.open(selectedCourse.url, "_blank", "noopener,noreferrer");
     }
   };
 
   return (
     <div className="space-y-8">
-      {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Button
-          variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
-        >
-          <div className="gap-2 flex flex-col items-start">
-            <span className="font-bold">Upcoming Deadlines</span>
-            <span className="font-bold text-xl">3</span>
-            <span className="text-muted-foreground">
-              Next: Math Exam (2 days)
-            </span>
-          </div>
-          <Calendar className="h-8 w-8" />
-        </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
-        >
-          <div className="gap-2 flex flex-col items-start">
-            <span className="font-bold">Study Time</span>
-            <span className="font-bold text-xl">7.5h</span>
-            <span className="text-muted-foreground">
-              <span className="mr-1 bg-green-100 text-green-800 px-1 py-1 rounded dark:bg-green-900 dark:text-green-200">
-                <span>+2.3h</span>
-              </span>
-              From last week
-            </span>
-          </div>
-          <Clock className="h-8 w-8" />
-        </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
-        >
-          <div className="gap-2 flex flex-col items-start">
-            <span className="font-bold">Resources</span>
-            <span className="font-bold text-xl">28</span>
-            <span className="text-muted-foreground">+5 new this week</span>
-          </div>
-          <BookOpenText className="h-8 w-8" />
-        </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
-        >
-          <div className="gap-2 flex flex-col items-start">
-            <span className="font-bold">Knowledge Points</span>
-            <span className="font-bold text-xl">253</span>
-            <span className="text-muted-foreground">You achieved level 3!</span>
-          </div>
-          <FileBadge className="h-8 w-8" />
-        </Button>
+        {dashboardCards.map((card, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            className="h-auto py-4 flex flex-row items-start justify-between gap-2 bg-background text-foreground border-border"
+          >
+            <div className="gap-2 flex flex-col items-start">
+              <span className="font-bold">{card.title}</span>
+              <span className="font-bold text-xl">{card.value}</span>
+              <span className="text-muted-foreground">{card.description}</span>
+            </div>
+            {card.icon}
+          </Button>
+        ))}
       </div>
 
-      {/* Apps Section */}
       <div className="space-y-4 bg-background p-6 rounded-md border border-border">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">My Apps</h1>
+          <h1 className="text-3xl font-bold text-foreground">My Courses</h1>
         </div>
 
         <div className="relative">
           <div className="flex space-x-4 pb-4 overflow-x-auto max-w-5xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-            {apps.map((app) => (
-              <Button
-                variant="outline"
-                size="sm"
-                key={app.name}
-                className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[120px] h-[120px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
-                onClick={() => handleAppClick(app)}
-              >
-                <img src={app.icon} alt={app.name} className="w-10 h-10 mb-2" />
-                <span className="font-medium">{app.name}</span>
-              </Button>
-            ))}
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  key={course.id}
+                  className="flex flex-col items-center justify-center.ConcurrentModificationException p-4 rounded-lg min-w-[120px] h-[140px] flex-shrink-0 bg-background text-foreground border-border hover:bg-accent"
+                  onClick={() => handleCourseClick(course)}
+                >
+                  <span className="text-2xl mb-2">{course.icon || "📚"}</span>
+                  <span className="font-medium text-center">
+                    {course.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {course.subject}
+                  </span>
+                  {course.progress !== undefined && (
+                    <span className="text-xs text-primary">
+                      {course.progress}% Complete
+                    </span>
+                  )}
+                </Button>
+              ))
+            ) : (
+              <p className="text-muted-foreground">
+                No courses available for your study level ({userStudyLevel}).
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -163,7 +234,7 @@ export function DashboardPage() {
         <div className="w-full flex gap-4">
           <div
             className={`h-[500px] border rounded-md overflow-hidden transition-all duration-300 ease-in-out bg-background border-border ${
-              selectedApp ? (isExpanded ? "hidden w-0" : "w-1/2") : "w-full"
+              selectedCourse ? (isExpanded ? "hidden w-0" : "w-1/2") : "w-full"
             }`}
           >
             <Tldraw
@@ -172,7 +243,7 @@ export function DashboardPage() {
             />
           </div>
 
-          {selectedApp && (
+          {selectedCourse && (
             <div
               className={`h-[500px] border rounded-md overflow-hidden flex flex-col transition-all duration-300 ease-in-out bg-background border-border ${
                 isExpanded ? "w-full" : "w-1/2"
@@ -180,7 +251,7 @@ export function DashboardPage() {
             >
               <div className="flex justify-between items-center p-2 border-b border-border bg-background">
                 <span className="font-medium text-foreground">
-                  {selectedApp.name}
+                  {selectedCourse.title}
                 </span>
                 <div className="space-x-2">
                   <Button
@@ -202,7 +273,7 @@ export function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleCloseApp}
+                    onClick={handleCloseCourse}
                     className="p-1 text-foreground hover:bg-accent"
                   >
                     Close
@@ -210,9 +281,9 @@ export function DashboardPage() {
                 </div>
               </div>
               <iframe
-                src={selectedApp.url}
+                src={selectedCourse.url}
                 className="w-full h-full border-none bg-background"
-                title={selectedApp.name}
+                title={selectedCourse.title}
                 allow="fullscreen"
               />
             </div>
